@@ -1,1 +1,11 @@
+# ignore pycharm files
 .idea/
+
+# Ignore Python bytecode files
+*.pyc
+
+# Ignore Python cache directories
+__pycache__/
+
+# ignore db files
+*.sqlite3

@@ -21,5 +21,6 @@ from users.views import SignUpView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signup/', SignUpView.as_view(), name='signup'),
-    # path('', include('users.urls')),
+    path('users/', include('users.urls')),  # Include your app's URLs
+    path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
 ]
