@@ -1,23 +1,29 @@
-name: Pylint
+name: Lint with pylint
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
+  lint:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - name: Check out the code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+        python-version: '3.11'
+
+    - name: Install Poetry
       run: |
-        python -m pip install --upgrade pip
-        pip install pylint
-    - name: Analysing the code with pylint
+        curl -sSL https://install.python-poetry.org | python3 -
+
+    - name: Install pylint
       run: |
-        pylint $(git ls-files '*.py')
+        poetry add --dev pylint
+
+    - name: Run pylint
+      run: |
+        poetry run pylint your_project_directory
