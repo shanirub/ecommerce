@@ -1,0 +1,33 @@
+name: Django Tests
+
+on:
+  push:
+    branches:
+      - main  # Adjust to your main branch name
+  pull_request:
+    branches:
+      - main  # Adjust to your main branch name
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+        source $HOME/.poetry/env
+
+    - name: Install dependencies
+      run: poetry install
+
+    - name: Run tests
+      run: poetry run python manage.py test
