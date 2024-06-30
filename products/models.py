@@ -1,4 +1,5 @@
 from django.db import models
+from .managers import ProductManager, CategoryManager
 
 
 class Category(models.Model):
@@ -7,6 +8,8 @@ class Category(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
+
+    objects = CategoryManager()
 
     def __str__(self):
         return self.name
@@ -22,6 +25,8 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     stock = models.IntegerField(default=0)
+
+    objects = ProductManager()
 
     def __str__(self):
         return self.name
