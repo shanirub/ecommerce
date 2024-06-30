@@ -26,6 +26,25 @@ class ProductManagerTest(TestCase):
         updated_product = Product.objects.update_product(name='Nonexistent', price=899.99)
         self.assertIsNone(updated_product)
 
+    def test_get_product(self):
+        product = Product.objects.get_product(name='Laptop')
+        self.assertIsNotNone(product)
+        self.assertEqual(product.stock, 2)
+
+    def test_get_nonexistent_product(self):
+        product = Product.objects.get_product(name='Nonexistent')
+        self.assertIsNone(product)
+
+    def test_delete_product(self):
+        num_of_deleted = Product.objects.delete_product(name='Laptop')
+        self.assertEqual(num_of_deleted, (1, {'products.Product': 1}))
+        product = Product.objects.get_product(name='Laptop')
+        self.assertIsNone(product)
+
+    def test_delete_nonexistent_product(self):
+        num_of_deleted = Product.objects.delete_product(name='Nonexistent')
+        self.assertIsNone(num_of_deleted)
+
 
 class CategoryManagerTest(TestCase):
     def setUp(self):
@@ -42,3 +61,22 @@ class CategoryManagerTest(TestCase):
     def test_update_nonexistent_product(self):
         updated_category = Category.objects.update_category(name='Nonexistent', description='something else')
         self.assertIsNone(updated_category)
+
+    def test_get_category(self):
+        category = Category.objects.get_category(name='Electronics')
+        self.assertIsNotNone(category)
+        self.assertEqual(category.description, 'Electronic items')
+
+    def test_get_nonexistent_category(self):
+        category = Category.objects.get_category(name='Nonexistent')
+        self.assertIsNone(category)
+
+    def test_delete_category(self):
+        num_of_deleted = Category.objects.delete_category(name='Electronics')
+        self.assertEqual(num_of_deleted, (1, {'products.Category': 1}))
+        category = Category.objects.get_category(name='Electronics')
+        self.assertIsNone(category)
+
+    def test_delete_nonexistent_category(self):
+        num_of_deleted = Category.objects.delete_category(name='Nonexistent')
+        self.assertIsNone(num_of_deleted)
