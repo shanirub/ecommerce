@@ -30,6 +30,7 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'users.User'
 
+LOGIN_REDIRECT_URL = '/users/profile/'
 
 # Application definition
 
@@ -82,7 +83,8 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': ':memory:',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Product</title>
+</head>
+<body>
+    <h1>Update Product</h1>
+    {% if success %}
+        <p>Product updated successfully!</p>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea><br>
+        <label for="price">Price:</label>
+        <input type="text" id="price" name="price"><br>
+        <label for="stock">Stock:</label>
+        <input type="text" id="stock" name="stock"><br>
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category"><br>
+        <button type="submit">Update Product</button>
+    </form>
+</body>
+</html>

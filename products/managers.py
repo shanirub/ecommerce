@@ -1,10 +1,22 @@
 from django.db import models
+from decimal import Decimal
 
 
 class ProductManager(models.Manager):
     def create_product(self, name, description, price, category, stock):
-        return self.create(
+        """
+
+        :param name:
+        :param description:
+        :param price: can be a float/str, casting to Decimal is in models save
+        :param category:
+        :param stock:
+        :return:
+        """
+        new_product = self.create(
             name=name, description=description, price=price, category=category, stock=stock)
+
+        return new_product
 
     def update_product(self, name, **kwargs):
         try:
@@ -12,7 +24,7 @@ class ProductManager(models.Manager):
             for key, value in kwargs.items():
                 setattr(product, key, value)
                 product.save()
-                return product
+            return product
         except self.model.DoesNotExist:
             return None
 
@@ -26,12 +38,12 @@ class ProductManager(models.Manager):
     def delete_product(self, name):
         """
         :param name:
-        :return: If category exists: number of objects deleted and a dictionary with the number of deletions per object type
+        :return: If product exists: number of objects deleted and a dictionary with the number of deletions per object type
         else returns None
         """
         try:
             product = self.get(name=name)
-            num_of_items_deleted = product.delete()
+            num_of_items_deleted, _ = product.delete()
             return num_of_items_deleted
         except self.model.DoesNotExist:
             return None

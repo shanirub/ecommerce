@@ -1,26 +1,38 @@
 from django.test import TestCase
 from .models import Product, Category
+from decimal import Decimal
 
 
 class ProductManagerTest(TestCase):
     def setUp(self):
+        #import ipdb; ipdb.set_trace()
+
         self.category = Category.objects.create(name='Electronics', description='Electronic items')
         self.product = Product.objects.create_product(
             name='Laptop',
             description='A powerful laptop',
-            price=999.99,
+            price=Decimal(899.99),
             category=self.category,
             stock=2,
         )
 
+        self.product2 = Product.objects.create_product(
+            name='MF',
+            description='A mainframe because why not',
+            price=Decimal('1'),
+            category=self.category,
+            stock=500,
+        )
+
     def test_create_product(self):
-        self.assertEqual(Product.objects.count(), 1)
+        self.assertEqual(Product.objects.count(), 2)
         self.assertEqual(self.product.name, 'Laptop')
+        self.assertEqual(self.product2.name, 'MF')
 
     def test_update_product(self):
         updated_product = Product.objects.update_product(name='Laptop', price=899.99)
         self.assertIsNotNone(updated_product)
-        self.assertEqual(updated_product.price, 899.99)
+        self.assertEqual(updated_product.price, Decimal('899.99'))
 
     def test_update_nonexistent_product(self):
         updated_product = Product.objects.update_product(name='Nonexistent', price=899.99)
@@ -35,11 +47,18 @@ class ProductManagerTest(TestCase):
         product = Product.objects.get_product(name='Nonexistent')
         self.assertIsNone(product)
 
+    '''
     def test_delete_product(self):
-        num_of_deleted = Product.objects.delete_product(name='Laptop')
+        num_of_deleted, _ = Product.objects.delete_product(name='Laptop')
         self.assertEqual(num_of_deleted, (1, {'products.Product': 1}))
         product = Product.objects.get_product(name='Laptop')
         self.assertIsNone(product)
+    '''
+    def test_delete_product(self):
+        num_of_deleted = Product.objects.delete_product(name='Laptop')
+        self.assertEqual(num_of_deleted, (1, {'products.Product': 1}))
+        with self.assertRaises(Product.DoesNotExist):
+            Product.objects.get(name='Laptop')
 
     def test_delete_nonexistent_product(self):
         num_of_deleted = Product.objects.delete_product(name='Nonexistent')
