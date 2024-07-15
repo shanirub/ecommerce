@@ -48,14 +48,14 @@ class Product(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def __eq__(self, other):
-        decimal_places = self._meta.get_field('price').decimal_places
-        other = decimal.Decimal(other).quantize(
-            decimal.Decimal(f'1.{"0" * decimal_places}'),
-            rounding=decimal.ROUND_DOWN
-        )
-
-        return self.price == other
+    # def __eq__(self, other):
+    #     decimal_places = self._meta.get_field('price').decimal_places
+    #     other = decimal.Decimal(other).quantize(
+    #         decimal.Decimal(f'1.{"0" * decimal_places}'),
+    #         rounding=decimal.ROUND_DOWN
+    #     )
+    #
+    #     return self.price == other
 
     def __str__(self):
         return self.name

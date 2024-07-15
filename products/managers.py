@@ -1,3 +1,5 @@
+from typing import Union
+
 from django.db import models
 from decimal import Decimal
 
@@ -18,14 +20,27 @@ class ProductManager(models.Manager):
 
         return new_product
 
-    def update_product(self, name, **kwargs):
+    def update_product(self, product: 'Product', **kwargs):
+        """
+
+        :param product: Product object
+            TODO: handle Product object and product's name (str). There's an open issue
+        :param kwargs: attributes of product to update
+        :return: updated Product object if successful. None otherwise
+        """
         try:
-            product = self.get(name=name)
+            if isinstance(product, str):
+                # product = self.get(name=product)
+                raise Exception("Currently not allowing updating Product using name field")
+
             for key, value in kwargs.items():
                 setattr(product, key, value)
                 product.save()
             return product
         except self.model.DoesNotExist:
+            return None
+        except Exception as e:
+            print(e)
             return None
 
     def get_product(self, name):
@@ -42,9 +57,8 @@ class ProductManager(models.Manager):
         else returns None
         """
         try:
-            product = self.get(name=name)
-            num_of_items_deleted, _ = product.delete()
-            return num_of_items_deleted
+            result = self.get(name=name).delete()
+            return result
         except self.model.DoesNotExist:
             return None
 

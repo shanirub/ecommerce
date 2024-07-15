@@ -62,10 +62,20 @@ class OrderItemManager(models.Manager):
             price = product.price * quantity
 
             with transaction.atomic():
+                '''
+                Two transactions:
+                 1. update product stock
+                 2. create order_item
+                 
+                 transactions are atomic to ensure that order_item is created
+                 only when product's stock was updated successfully
+                '''
+                # updating product stock
                 updated_product = ProductManager.update_product(self, product, stock=updated_stock)
                 if not updated_product:
                     raise ValidationError(f'Failed to create new order item with this attributes: '
                                           f'order= {order}, product= {product}, quantity= {quantity}')
+                # creating order_item
                 return self.create(order=order, product=product, quantity=quantity, price=price)
         except ValidationError as e:
             print(e)
@@ -84,13 +94,16 @@ class OrderItemManager(models.Manager):
                         new_quantity = value
                         change_in_stock = old_quantity - new_quantity
                         updated_product = ProductManager.update_product(
-                            self, order_item.product.name, stock=order_item.product.stock + change_in_stock)
+                            self, order_item.product, stock=order_item.product.stock + change_in_stock)
                         if not updated_product:
                             raise ValidationError(f"Failed to update order item with this attributes: "
                                                   f"order_item= {order_item}, key= {key}, value= {value}")
+                        updated_product.save()
                         new_price = new_quantity * order_item.product.price
                         setattr(order_item, 'price', new_price)
                     setattr(order_item, key, value)
+
+                order_item.save()
                 return order_item
         except self.model.DoesNotExist:
             return None

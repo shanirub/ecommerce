@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from .managers import OrderManager, OrderItemManager
-# from datetime import datetime
 
 
 class Order(models.Model):
@@ -9,8 +8,8 @@ class Order(models.Model):
     customer's order
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True,)# default=datetime.now)
-    updated_at = models.DateTimeField(auto_now=True,)# default=datetime.now)
+    created_at = models.DateTimeField(auto_now_add=True,)
+    updated_at = models.DateTimeField(auto_now=True,)
     is_paid = models.BooleanField(default=False)
 
     objects = OrderManager()

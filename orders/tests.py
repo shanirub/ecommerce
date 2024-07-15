@@ -68,7 +68,7 @@ class OrderManagerTest(TestCase):
 
 class OrderItemManagerTest(TestCase):
     def setUp(self):
-        #breakpoint()
+
         self.user = User.objects.create_user(
             username='shani',
             email='shani@example.com',
@@ -81,27 +81,39 @@ class OrderItemManagerTest(TestCase):
         self.order = Order.objects.create_order(user=self.user)
         self.category = Category.objects.create_category('Stuff', 'Stuff things')
         self.product = Product.objects.create_product('thingy', 'medium size thingy', 100, self.category, 4)
-        self.order_item = OrderItem.objects.create_order_item(self.order, self.product, 2)
+
+        # creating order_item with a Product object
+        self.order_item = OrderItem.objects.create_order_item(self.order, self.product, 1)
 
     def test_create_order_item(self):
         self.assertEqual(Order.objects.count(), 1)
         self.assertEqual(self.order.user, self.user)
         # check that product stock was updated after adding order item
-        self.assertEqual(self.product.stock, 2)
+        self.assertEqual(self.product.stock, 3)
 
     def test_update_order_item_enough_stock(self):
+        """
+        order_item.quantity == 1 -> order_item.quantity == 2
+        product.stock == 3 -> product.stock == 2
+        """
         order_item_id = self.order_item.id
-        updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=1)
+        updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=2)
         self.assertIsNotNone(updated_order_item)
-        self.assertEqual(self.order_item.quantity, 1)
-        self.assertEqual(self.product.stock, 3)
+
+        # Refresh from database
+        self.order_item.refresh_from_db()
+        self.product.refresh_from_db()
+
+        self.assertEqual(self.order_item.quantity, 2)
+        self.assertEqual(self.product.stock, 2)
 
     def test_update_order_item_not_enough_stock(self):
         order_item_id = self.order_item.id
         updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=100)
         self.assertIsNone(updated_order_item)
-        self.assertEqual(self.order_item.quantity, 2)
-        self.assertEqual(self.product.stock, 2)
+        # stock and quantity should have stayed the same
+        self.assertEqual(self.order_item.quantity, 1)
+        self.assertEqual(self.product.stock, 3)
 
     def test_update_nonexistent_order_item(self):
         pass
