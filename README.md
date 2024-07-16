@@ -1,7 +1,7 @@
 A very basic e-commerce system, built using django.
 
 ---
-The development process was breaked down to milestones and issues. Review the issues tab to see in which step i'm currenly in.
+The development process was divided to milestones and issues. Review the issues tab to see in which step i'm currenly in.
 
 ---
 **Models:**
