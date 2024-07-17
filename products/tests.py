@@ -5,13 +5,11 @@ from decimal import Decimal
 
 class ProductManagerTest(TestCase):
     def setUp(self):
-        #import ipdb; ipdb.set_trace()
-
         self.category = Category.objects.create(name='Electronics', description='Electronic items')
         self.product = Product.objects.create_product(
             name='Laptop',
             description='A powerful laptop',
-            price=Decimal(899.99),
+            price=Decimal(1899.99),
             category=self.category,
             stock=2,
         )
@@ -30,13 +28,14 @@ class ProductManagerTest(TestCase):
         self.assertEqual(self.product2.name, 'MF')
 
     def test_update_product(self):
-        updated_product = Product.objects.update_product(name='Laptop', price=899.99)
+        updated_product = Product.objects.update_product(self.product, price=899.99)
         self.assertIsNotNone(updated_product)
         self.assertEqual(updated_product.price, Decimal('899.99'))
 
-    def test_update_nonexistent_product(self):
-        updated_product = Product.objects.update_product(name='Nonexistent', price=899.99)
-        self.assertIsNone(updated_product)
+    # TODO: uncomment when update_product() accepts a product's name and not just a Product object
+    # def test_update_nonexistent_product(self):
+    #     updated_product = Product.objects.update_product(name='Nonexistent', price=899.99)
+    #     self.assertIsNone(updated_product)
 
     def test_get_product(self):
         product = Product.objects.get_product(name='Laptop')
@@ -47,13 +46,6 @@ class ProductManagerTest(TestCase):
         product = Product.objects.get_product(name='Nonexistent')
         self.assertIsNone(product)
 
-    '''
-    def test_delete_product(self):
-        num_of_deleted, _ = Product.objects.delete_product(name='Laptop')
-        self.assertEqual(num_of_deleted, (1, {'products.Product': 1}))
-        product = Product.objects.get_product(name='Laptop')
-        self.assertIsNone(product)
-    '''
     def test_delete_product(self):
         num_of_deleted = Product.objects.delete_product(name='Laptop')
         self.assertEqual(num_of_deleted, (1, {'products.Product': 1}))
@@ -72,12 +64,12 @@ class CategoryManagerTest(TestCase):
     def test_create_category(self):
         self.assertEqual(Category.objects.count(), 1)
 
-    def test_update_product(self):
+    def test_update_category(self):
         updated_category = Category.objects.update_category(name='Electronics', description='something else')
         self.assertIsNotNone(updated_category)
         self.assertEqual(updated_category.description, 'something else')
 
-    def test_update_nonexistent_product(self):
+    def test_update_nonexistent_category(self):
         updated_category = Category.objects.update_category(name='Nonexistent', description='something else')
         self.assertIsNone(updated_category)
 

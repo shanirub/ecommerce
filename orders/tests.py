@@ -58,7 +58,7 @@ class OrderManagerTest(TestCase):
         order_id = self.order.id
         result = Order.objects.delete_order(order_id)
         self.assertIsNotNone(result)
-        self.assertEqual(result[0], 1)
+        self.assertEqual(result, (1, {'orders.Order': 1}))
         self.assertEqual(Order.objects.count(), 1)
 
     def test_delete_nonexistent_order(self):

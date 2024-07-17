@@ -32,7 +32,7 @@ class OrderManager(models.Manager):
             with transaction.atomic():
                 from orders.models import OrderItem
                 order_items_to_delete = OrderItem.objects.get_all_order_items_from_order(order)
-                if not order_items_to_delete:
+                if order_items_to_delete is None:
                     raise Exception(f"Failed getting a list of items to delete, when trying to delete order {order}")
                 # if no order_items were found under order, order_items_to_delete should be an empty list
                 for order_item in order_items_to_delete:
