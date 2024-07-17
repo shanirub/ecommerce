@@ -68,7 +68,6 @@ class OrderManagerTest(TestCase):
 
 class OrderItemManagerTest(TestCase):
     def setUp(self):
-
         self.user = User.objects.create_user(
             username='shani',
             email='shani@example.com',
@@ -116,30 +115,84 @@ class OrderItemManagerTest(TestCase):
         self.assertEqual(self.product.stock, 3)
 
     def test_update_nonexistent_order_item(self):
-        pass
+        order_item_id = 5
+        updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=100)
+        self.assertIsNone(updated_order_item)
 
-    def test_get_order_item(self):
-        # from a specific order
-        pass
+    def test_get_order_item_by_id(self):
+        order_item_id = self.order_item.id
+        order_item = OrderItem.objects.get_order_item(order_item_id)
+        self.assertIsNotNone(order_item)
+        diff = compare_model_instances(order_item, self.order_item)
+        self.assertEqual(len(diff), 0)
 
     def test_get_nonexistent_order_item(self):
-        pass
+        order_item_id = 5
+        order_item = OrderItem.objects.get_order_item(order_item_id)
+        self.assertIsNone(order_item)
 
     def test_delete_order_item(self):
-        pass
+        result = OrderItem.objects.delete_order_item(self.order_item.id)
+        self.assertIsNotNone(result)
+        self.assertEqual(result, (1, {'orders.OrderItem': 1}))
 
     def test_delete_nonexistent_order_item(self):
-        pass
+        order_item_id = 5
+        result = OrderItem.objects.delete_order_item(order_item_id)
+        self.assertIsNone(result)
 
 
 class OrderIntegrationTests(TestCase):
     def setUp(self):
-        pass
+        self.user = User.objects.create_user(
+            username='shani',
+            email='shani@example.com',
+            password='abc12345')
+        # self.user2 = User.objects.create_user(
+        #     username='nirit',
+        #     email='nirit@example.com',
+        #     password='aabb1234'
+        # )
+        self.order = Order.objects.create_order(user=self.user)
+        self.category = Category.objects.create_category('Stuff', 'Stuff things')
 
-    def add_multiple_items_to_order(self):
-        pass
+        self.product = Product.objects.create_product('thingyM', 'medium size thingy', 100, self.category, 4)
+        self.product2 = Product.objects.create_product('thingyL', 'large size thingy', 200, self.category, 8)
+        self.product3 = Product.objects.create_product('thingyS', 'small size thingy', 50, self.category, 20)
 
-    def delete_order_and_check_items_deleted(self):
+        self.order_item = OrderItem.objects.create_order_item(self.order, self.product, 1)
+        self.order_item2 = OrderItem.objects.create_order_item(self.order, self.product2, 1)
+        self.order_item3 = OrderItem.objects.create_order_item(self.order, self.product3, 1)
+
+    def test_add_multiple_items_to_order(self):
+        self.assertIsNotNone(self.order_item)
+        self.assertIsNotNone(self.order_item2)
+        self.assertIsNotNone(self.order_item3)
+        self.assertEqual(OrderItem.objects.count(), 3)
+
+        order_items = OrderItem.objects.get_all_order_items_from_order(order=self.order)
+        self.assertIsNotNone(order_items)
+        self.assertEqual(len(order_items), 3)
+        self.assertTrue(self.order_item in order_items
+                        and self.order_item2 in order_items
+                        and self.order_item3 in order_items)
+
+    def test_delete_order_and_check_items_deleted(self):
+
+        self.assertIsNotNone(self.order_item)
+        self.assertIsNotNone(self.order_item2)
+        self.assertIsNotNone(self.order_item3)
+        self.assertEqual(OrderItem.objects.count(), 3)
+
+        result = Order.objects.delete_order(self.order.id)
+        self.assertIsNotNone(result)
+        self.assertEqual(result, (1, {'orders.Order': 1}))
+
+    def test_combine_two_order_items_of_the_same_product(self):
+        # create new order_item with quantity 2
+        # create new order_item (of the same product) with quantity 5
+        # check order has only one order_item in list, with quantity 7
+        # check product stock was deducted by 7
         pass
 
 

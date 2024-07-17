@@ -22,11 +22,30 @@ class OrderManager(models.Manager):
             return None
 
     def delete_order(self, order_id):
+        """
+        delete an Order including all order_items in it
+        :param order_id: id field of Order object
+        :return:
+        """
         try:
             order = self.get(id=order_id)
-            result = order.delete()
-            return result
+            with transaction.atomic():
+                from orders.models import OrderItem
+                order_items_to_delete = OrderItem.objects.get_all_order_items_from_order(order)
+                if not order_items_to_delete:
+                    raise Exception(f"Failed getting a list of items to delete, when trying to delete order {order}")
+                # if no order_items were found under order, order_items_to_delete should be an empty list
+                for order_item in order_items_to_delete:
+                    r = OrderItem.objects.delete_order_item(order_item.id)
+                    if not r:
+                        raise Exception(f"Deleting order_item {order_item} with id {order_item.id} failed."
+                                        f"Deleting order {order} with id {order_id} failed.")
+                result = order.delete()
+                return result
         except self.model.DoesNotExist:
+            return None
+        except Exception as e:
+            print(e)
             return None
 
     def get_order(self, order_id):
@@ -126,4 +145,17 @@ class OrderItemManager(models.Manager):
             order_item = self.get(id=order_item_id)
             return order_item
         except self.model.DoesNotExist:
+            return None
+
+    def get_all_order_items_from_order(self, order: 'Order'):
+        """
+        :return: returns a list of all order_item objects in order, None if something went wrong
+        """
+        try:
+            order_items = self.filter(order=order)
+            return order_items
+        except self.model.DoesNotExist:
+            return None
+        except Exception as e:
+            print(e)
             return None
