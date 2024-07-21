@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from .managers import OrderManager, OrderItemManager
 
 
 class Order(models.Model):
@@ -7,10 +8,15 @@ class Order(models.Model):
     customer's order
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True,)
+    updated_at = models.DateTimeField(auto_now=True,)
     is_paid = models.BooleanField(default=False)
-    # id field added automatic by django
+
+    objects = OrderManager()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Order {self.id} by {self.user}'
@@ -24,6 +30,12 @@ class OrderItem(models.Model):
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    objects = OrderItemManager()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.quantity} of {self.product.name}'

@@ -23,7 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
-
     path('users/', include('users.urls')),  # Include your app's URLs
     path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
 ]
