@@ -1,6 +1,10 @@
 from django.db import models
 from django.conf import settings
 from .managers import OrderManager, OrderItemManager
+from ecommerce.constants import EXCEPTION_LOG_LEVELS
+import logging
+
+logger = logging.getLogger('django')
 
 
 class Order(models.Model):
@@ -15,8 +19,13 @@ class Order(models.Model):
     objects = OrderManager()
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        try:
+            self.full_clean()
+            super().save(*args, **kwargs)
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            raise
 
     def __str__(self):
         return f'Order {self.id} by {self.user}'
@@ -34,8 +43,13 @@ class OrderItem(models.Model):
     objects = OrderItemManager()
 
     def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        try:
+            self.full_clean()
+            super().save(*args, **kwargs)
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            raise
 
     def __str__(self):
         return f'{self.quantity} of {self.product.name}'

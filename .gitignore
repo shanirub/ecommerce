@@ -9,3 +9,6 @@ __pycache__/
 
 # ignore db files
 *.sqlite3
+
+# ignore log file
+django.log
