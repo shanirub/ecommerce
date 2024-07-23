@@ -111,7 +111,6 @@ class OrderItemManagerTest(TestCase):
         order_item_id = self.order_item.id
         with self.assertRaises(ValidationError):
             updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=100)
-        self.assertIsNone(updated_order_item)
         # stock and quantity should have stayed the same
         self.assertEqual(self.order_item.quantity, 1)
         self.assertEqual(self.product.stock, 3)

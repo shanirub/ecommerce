@@ -167,7 +167,7 @@ class OrderItemManager(models.Manager):
             return None
         except ValidationError as e:
             logger.error(f"An error occurred: {str(e)}", exc_info=True)
-            return None
+            raise
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
