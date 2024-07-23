@@ -3,6 +3,7 @@ from .models import Order, OrderItem
 from users.models import User
 from products.models import Category, Product
 from ecommerce.utils import compare_model_instances
+from django.core.exceptions import ValidationError
 
 
 class OrderManagerTest(TestCase):
@@ -108,7 +109,8 @@ class OrderItemManagerTest(TestCase):
 
     def test_update_order_item_not_enough_stock(self):
         order_item_id = self.order_item.id
-        updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=100)
+        with self.assertRaises(ValidationError):
+            updated_order_item = OrderItem.objects.update_order_item(order_item_id, quantity=100)
         self.assertIsNone(updated_order_item)
         # stock and quantity should have stayed the same
         self.assertEqual(self.order_item.quantity, 1)
