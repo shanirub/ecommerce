@@ -33,6 +33,10 @@ class OrderManager(models.Manager):
         except self.model.DoesNotExist:
             logger.error(f"Order #{order_id} does not exist.")
             return None
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            return None
 
     def delete_order(self, order_id):
         """
