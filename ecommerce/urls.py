@@ -25,4 +25,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
     path('users/', include('users.urls')),  # Include your app's URLs
     path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
+    path('', include('products.urls'))
 ]
