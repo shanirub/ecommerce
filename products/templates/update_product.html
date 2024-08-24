@@ -12,16 +12,27 @@
     {% endif %}
     <form method="post">
         {% csrf_token %}
+
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name"><br>
+        {{ form.name.errors }}
+        {{ form.name }}<br>
+
         <label for="description">Description:</label>
-        <textarea id="description" name="description"></textarea><br>
+        {{ form.description.errors }}
+        {{ form.description }}<br>
+
         <label for="price">Price:</label>
-        <input type="text" id="price" name="price"><br>
+        {{ form.price.errors }}
+        {{ form.price }}<br>
+
         <label for="stock">Stock:</label>
-        <input type="text" id="stock" name="stock"><br>
+        {{ form.stock.errors }}
+        {{ form.stock }}<br>
+
         <label for="category">Category:</label>
-        <input type="text" id="category" name="category"><br>
+        {{ form.category.errors }}
+        {{ form.category }}<br>
+
         <button type="submit">Update Product</button>
     </form>
 </body>

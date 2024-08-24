@@ -5,9 +5,36 @@
 </head>
 <body>
     <h1>Create Product</h1>
+
+    {% if success %}
+        <p>Product created successfully!</p>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <label for="name">Name:</label>
+        {{ form.name.errors }}
+        {{ form.name }}<br>
+
+        <label for="description">Description:</label>
+        {{ form.description.errors }}
+        {{ form.description }}<br>
+
+        <label for="price">Price:</label>
+        {{ form.price.errors }}
+        {{ form.price }}<br>
+
+        <label for="stock">Stock:</label>
+        {{ form.stock.errors }}
+        {{ form.stock }}<br>
+
+        <label for="category">Category:</label>
+        {{ form.category.errors }}
+        {{ form.category }}<br>
+
         <button type="submit">Create</button>
     </form>
 </body>
