@@ -81,6 +81,7 @@ class ProductViewTests(TestCase):
                                              category='New Category')
         response = self.client.post(reverse('update_product', args=[self.product.pk]), product_data)
 
+        # TODO: should never redirect? should stay on page. redirect only on success
         # If redirected, follow the redirect
         if response.status_code == 302:
             response = self.client.get(response.url)
@@ -99,15 +100,34 @@ class ProductViewTests(TestCase):
         self.assertIn('price', form.errors)
 
     def test_read_existing_product(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('product_detail', args=[self.product.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'product_detail.html')
+        self.assertContains(response, self.product.name)
+        self.assertContains(response, self.product.description)
+        self.assertContains(response, f"${self.product.price}")
+
+    def test_read_not_existing_product(self):
         pass
-        # load product list
-        # simulate clicking on first product in list?
-        # assert some stuff
 
     def test_delete_existing_product(self):
-        pass
-        # load product list
-        # simulate clicking on product in list
-        # delete it
-        # assert some stuff
+        self.client.login(username='admin', password='admin')
 
+        # GET request to load delete confirmation page
+        response = self.client.get(reverse('delete_product', args=[self.product.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'delete_product.html')
+
+        # POST request to simulate confirmation
+        response = self.client.post(reverse('delete_product', args=[self.product.pk]))
+        self.assertRedirects(response, reverse('product_list'))
+
+        # check to see product was indeed deleted
+        with self.assertRaises(Product.DoesNotExist):
+            Product.objects.get(pk=self.product.pk)
+
+    def test_delete_non_existing_product(self):
+        pass
+    
