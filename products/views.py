@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic.edit import UpdateView, CreateView
-from django.views.generic import ListView
+from django.views.generic.edit import UpdateView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView
 from .models import Product
 
 
@@ -52,24 +52,32 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
         return self.request.user.is_staff
 
 
+class BaseProductView(UserPassesTestMixin):
+    model = Product
+    fields = ['name', 'description', 'price', 'stock', 'category']
+    success_url = reverse_lazy('product_list')
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_object(self):
+        return self.model.objects.get(pk=self.kwargs['pk'])
 
 
-# def update_product_view(request):
-#     if request.method == 'POST':
-#         name = request.POST.get('name')
-#         description = request.POST.get('description')
-#         price = request.POST.get('price')
-#         stock = request.POST.get('stock')
-#         category = request.POST.get('category')
-#
-#         product = Product.objects.update_product(
-#             name, description=description, price=price, category=category, stock=stock)
-#
-#         if product:
-#             # Handle success
-#             return render(request, 'update_product.html', {'product': product, 'success': True})
-#         else:
-#             # Handle product not found
-#             return render(request, 'update_product.html', {'error': 'Product not found'})
-#
-#     return render(request, 'update_product.html')
+class ProductDeleteView(BaseProductView, DeleteView):
+    template_name = 'delete_product.html'
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class ProductDetailView(BaseProductView, DetailView):
+    template_name = 'product_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+

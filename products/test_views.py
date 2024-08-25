@@ -98,3 +98,16 @@ class ProductViewTests(TestCase):
         self.assertIn('category', form.errors)
         self.assertIn('price', form.errors)
 
+    def test_read_existing_product(self):
+        pass
+        # load product list
+        # simulate clicking on first product in list?
+        # assert some stuff
+
+    def test_delete_existing_product(self):
+        pass
+        # load product list
+        # simulate clicking on product in list
+        # delete it
+        # assert some stuff
+
