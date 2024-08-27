@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Category</title>
+</head>
+<body>
+    <h1>Update Category</h1>
+    {% if success %}
+        <p>Category updated successfully!</p>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="name">Name:</label>
+        {{ form.name.errors }}
+        {{ form.name }}<br>
+
+        <label for="description">Description:</label>
+        {{ form.description.errors }}
+        {{ form.description }}<br>
+
+        <button type="submit">Update Category</button>
+    </form>
+</body>
+</html>
