@@ -99,6 +99,14 @@ class ProductViewTests(TestCase):
         self.assertIn('category', form.errors)
         self.assertIn('price', form.errors)
 
+    def test_update_non_existing_product(self):
+        NON_EXISTING_PRODUCT_PK = 12345
+        self.client.login(username='admin', password='admin')
+        product_data = self.get_product_data(self.product, description='', price='invalid_price',
+                                             category='New Category')
+        response = self.client.post(reverse('update_product', args=[NON_EXISTING_PRODUCT_PK]), product_data)
+        self.assertEqual(response.status_code, 404)
+
     def test_read_existing_product(self):
         self.client.login(username='admin', password='admin')
         response = self.client.get(reverse('product_detail', args=[self.product.pk]))
@@ -110,7 +118,13 @@ class ProductViewTests(TestCase):
         self.assertContains(response, f"${self.product.price}")
 
     def test_read_not_existing_product(self):
-        pass
+        NON_EXISTING_PRODUCT_PK = 12345
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
+        self.assertEqual(response.status_code, 404)
+
+        with self.assertRaises(Product.DoesNotExist):
+            Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
 
     def test_delete_existing_product(self):
         self.client.login(username='admin', password='admin')
@@ -129,5 +143,10 @@ class ProductViewTests(TestCase):
             Product.objects.get(pk=self.product.pk)
 
     def test_delete_non_existing_product(self):
-        pass
-    
+        NON_EXISTING_PRODUCT_PK = 12345
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
+        self.assertEqual(response.status_code, 404)
+
+        with self.assertRaises(Product.DoesNotExist):
+            Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)

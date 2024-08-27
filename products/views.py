@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Product
+from ecommerce.utils import SafeGetObjectMixin
 
 
 class ProductListView(ListView):
@@ -60,11 +61,11 @@ class BaseProductView(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
 
-    def get_object(self):
+    def get_object(self, *args, **kwargs):
         return self.model.objects.get(pk=self.kwargs['pk'])
 
 
-class ProductDeleteView(BaseProductView, DeleteView):
+class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
     template_name = 'delete_product.html'
 
     def get(self, request, *args, **kwargs):
@@ -74,7 +75,7 @@ class ProductDeleteView(BaseProductView, DeleteView):
         return super().post(request, *args, **kwargs)
 
 
-class ProductDetailView(BaseProductView, DetailView):
+class ProductDetailView(SafeGetObjectMixin, BaseProductView, DetailView):
     template_name = 'product_detail.html'
 
     def get(self, request, *args, **kwargs):

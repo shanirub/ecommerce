@@ -1,4 +1,21 @@
 from django.db import models
+from django.http import Http404
+from django.views.generic import View
+
+
+class SafeGetObjectMixin(View):
+    def get_object(self, queryset=None):
+        """
+        Safe get_object() to assure a DoesNotExist exception will be translated to a 404 page
+        :param queryset:
+        :return:
+        """
+        try:
+            if queryset is None:
+                queryset = self.get_queryset()
+            return super().get_object(queryset)
+        except self.model.DoesNotExist:
+            raise Http404(f"{self.model.__name__} does not exist")
 
 
 def compare_model_instances(instance1, instance2):
@@ -29,37 +46,3 @@ def compare_model_instances(instance1, instance2):
                 differences[field.name] = (value1, value2)
 
     return differences
-
-'''
-view
-
-from django.shortcuts import render
-from .models import Order
-from .utils import compare_model_instances
-
-def compare_orders_view(request, order_id1, order_id2):
-    order1 = Order.objects.get(id=order_id1)
-    order2 = Order.objects.get(id=order_id2)
-    
-    differences = compare_model_instances(order1, order2)
-    
-    return render(request, 'compare_orders.html', {'differences': differences})
-
-html
-
-<!-- compare_orders.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Compare Orders</title>
-</head>
-<body>
-    <h1>Differences between Orders</h1>
-    <ul>
-        {% for field, values in differences.items %}
-            <li>{{ field }}: {{ values.0 }} != {{ values.1 }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
-'''
