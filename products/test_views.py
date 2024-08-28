@@ -150,3 +150,50 @@ class ProductViewTests(TestCase):
 
         with self.assertRaises(Product.DoesNotExist):
             Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
+
+
+class CategoryViewTests(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser(username='admin', password='admin', email='admin@example.com')
+        self.category = Category.objects.create_category(name='cat1', description='cat example')
+
+    def test_create_category_view(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('create_category'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'create_category.html')
+
+    def test_create_category_success(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.post(reverse('create_category'), {'name': 'new category', 'description': 'description'})
+
+        print(f"response: \n\n {response}")
+        self.assertEqual(response.status_code, 302)  # Check if redirected
+        self.assertRedirects(response, reverse('category_list'))
+        self.assertTrue(Product.objects.filter(name='new category').exists())  # Check if the product was created
+
+    def test_update_category_view(self):
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('update_category', kwargs={'pk': self.category.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'update_category.html')
+
+    def test_create_invalid_category(self):
+        # with blank name
+        pass
+
+    def test_update_non_existing_category(self):
+        # category does not exist
+        pass
+
+    def test_read_existing_category(self):
+        pass
+
+    def test_read_non_existing_category(self):
+        pass
+
+    def test_delete_existing_category(self):
+        pass
+
+    def test_delete_non_existing_category(self):
+        pass

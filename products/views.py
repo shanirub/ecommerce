@@ -82,7 +82,7 @@ class ProductDetailView(SafeGetObjectMixin, BaseProductView, DetailView):
         return super().get(request, *args, **kwargs)
 
 
-class CategoryListView(UserPassesTestMixin, ListView):
+class CategoryListView(ListView):
     model = Category
     template_name = 'category_list.html'
     context_object_name = 'categories'
@@ -91,7 +91,7 @@ class CategoryListView(UserPassesTestMixin, ListView):
 class CategoryUpdateView(UserPassesTestMixin, UpdateView):
     model = Category
     fields = ['description']
-    template_name = 'update_category'
+    template_name = 'update_category.html'
     success_url = reverse_lazy('category_list')
 
     def test_func(self):
@@ -112,17 +112,17 @@ class CategoryUpdateView(UserPassesTestMixin, UpdateView):
 class CategoryCreateView(UserPassesTestMixin, CreateView):
     model = Category
     fields = ['name', 'description']
-    template_name = 'create_product.html'
+    template_name = 'create_category.html'
     success_url = reverse_lazy('category_list')
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        return response
+        context = self.get_context_data(success=True)
+        return self.render_to_response(context)
 
     def form_invalid(self, form):
-        # Check if the form_invalid method is correctly handling errors
-        print(f"form_invalid called with form errors: {form.errors}")
-        return super().form_invalid(form)
+        context = self.get_context_data(form=form, success=False, error="There was an error creating the category.")
+        return self.render_to_response(context)
 
     def test_func(self):
         # only allow admin users
