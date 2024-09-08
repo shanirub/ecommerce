@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.name }} - Product Details</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    <p>Price: ${{ product.price }}</p>
+    <p>Description: {{ product.description }}</p>
+    <a href="{% url 'product_list' %}">Back to Product List</a>
+    <a href="{% url 'delete_product' product.id %}">Delete Product</a>
+</body>
+</html>

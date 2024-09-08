@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Update Product</title>
+    <title>Create Product</title>
 </head>
 <body>
-    <h1>Update Product</h1>
+    <h1>Create Product</h1>
+
     {% if success %}
-        <p>Product updated successfully!</p>
+        <p>Product created successfully!</p>
     {% elif error %}
         <p>{{ error }}</p>
     {% endif %}
+
     <form method="post">
         {% csrf_token %}
 
@@ -33,7 +35,7 @@
         {{ form.category.errors }}
         {{ form.category }}<br>
 
-        <button type="submit">Update Product</button>
+        <button type="submit">Create</button>
     </form>
 </body>
 </html>
