@@ -5,7 +5,6 @@
 </head>
 <body>
     <h1>{{ category.name }}</h1>
-    <p>Price: ${{ category.price }}</p>
     <p>Description: {{ category.description }}</p>
     <a href="{% url 'category_list' %}">Back to Category List</a>
     <a href="{% url 'delete_category' category.id %}">Delete Category</a>

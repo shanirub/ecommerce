@@ -117,12 +117,11 @@ class CategoryCreateView(UserPassesTestMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        context = self.get_context_data(success=True)
-        return self.render_to_response(context)
+        return response
 
     def form_invalid(self, form):
-        context = self.get_context_data(form=form, success=False, error="There was an error creating the category.")
-        return self.render_to_response(context)
+        print(f"form_invalid called with form errors: {form.errors}")
+        return super().form_invalid(form)
 
     def test_func(self):
         # only allow admin users

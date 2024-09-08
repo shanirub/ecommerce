@@ -167,10 +167,9 @@ class CategoryViewTests(TestCase):
         self.client.login(username='admin', password='admin')
         response = self.client.post(reverse('create_category'), {'name': 'new category', 'description': 'description'})
 
-        print(f"response: \n\n {response}")
         self.assertEqual(response.status_code, 302)  # Check if redirected
         self.assertRedirects(response, reverse('category_list'))
-        self.assertTrue(Product.objects.filter(name='new category').exists())  # Check if the product was created
+        self.assertTrue(Category.objects.filter(name='new category').exists())  # Check if the product was created
 
     def test_update_category_view(self):
         self.client.login(username='admin', password='admin')
@@ -179,21 +178,68 @@ class CategoryViewTests(TestCase):
         self.assertTemplateUsed(response, 'update_category.html')
 
     def test_create_invalid_category(self):
-        # with blank name
-        pass
+        self.client.login(username='admin', password='admin')
+        response = self.client.post(reverse('create_category'), {'name': '', 'description': 'description'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'create_category.html')
+
+        # Check if form is in the context
+        self.assertIn('form', response.context)
+        form = response.context['form']
+        self.assertFalse(form.is_valid())
+        self.assertIn('name', form.errors)
+
+        expected_errors = {
+            'name': ['This field is required.'],
+        }
+        self.assertEqual(form.errors, expected_errors)
+
+        # Ensure no product was created with invalid data
+        self.assertFalse(Category.objects.filter(name='').exists())
+        self.assertFalse(Category.objects.filter(description='description').exists())
 
     def test_update_non_existing_category(self):
-        # category does not exist
-        pass
+        self.client.login(username='admin', password='admin')
+        response = self.client.post(reverse('update_category', kwargs={'pk': '010101'}))
+        self.assertEqual(response.status_code, 404)
 
     def test_read_existing_category(self):
-        pass
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('category_detail', args=[self.category.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'category_detail.html')
+        self.assertContains(response, self.category.name)
 
     def test_read_non_existing_category(self):
-        pass
+        NON_EXISTING_CATEGORY_PK = 12345
+        self.client.login(username='admin', password='admin')
+        response = self.client.get(reverse('category_detail', args=[NON_EXISTING_CATEGORY_PK]))
+        self.assertEqual(response.status_code, 404)
+
+        with self.assertRaises(Category.DoesNotExist):
+            Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
 
     def test_delete_existing_category(self):
-        pass
+        self.client.login(username='admin', password='admin')
+
+        # GET request to load delete confirmation page
+        response = self.client.get(reverse('delete_category', args=[self.category.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'delete_category.html')
+
+        # POST request to simulate confirmation
+        response = self.client.post(reverse('delete_category', args=[self.category.pk]))
+        self.assertRedirects(response, reverse('category_list'))
+
+        # check to see category was indeed deleted
+        with self.assertRaises(Category.DoesNotExist):
+            Category.objects.get(pk=self.category.pk)
 
     def test_delete_non_existing_category(self):
-        pass
+        NON_EXISTING_CATEGORY_PK = 12345
+        self.client.login(username='admin', password='admin')
+        response = self.client.post(reverse('delete_category', args=[NON_EXISTING_CATEGORY_PK]))
+        self.assertEqual(response.status_code, 404)
+
+        with self.assertRaises(Category.DoesNotExist):
+            Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
