@@ -5,5 +5,12 @@
 </head>
 <body>
     <h1>Welcome, {{ user.username }}!</h1>
+
+    <!-- Logout form to trigger the logout with POST -->
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
 </body>
 </html>
