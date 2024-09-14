@@ -1,0 +1,24 @@
+|           |        | groups | customers_group | staff_group | stock_personnel_group | shift_manager_group |
+|-----------|--------|--------|-----------------|-------------|-----------------------|---------------------|
+| models    |        |        |                 |             |                       |                     |
+| Product   | create |        |                 | v           |                       | v                   |
+|           | read   |        | v               | v           | v                     | v                   |
+|           | update |        |                 | v           | v                     | v                   |
+|           | delete |        |                 | v           |                       | v                   |
+| Category  | create |        |                 | v           |                       | v                   |
+|           | read   |        | v               | v           | v                     | v                   |
+|           | update |        |                 | v           |                       | v                   
+|           | delete |        |                 | v           |                       | v                   |
+| Order     | create |        | v               |             |                       | v                   |
+|           | read   |        | v               | v           |                       | v                   |
+|           | update |        | v               |             |                       | v                   |
+|           | delete |        | v               |             |                       | v                   |
+| OrderItem | create |        | v               |             |                       | v                   |
+|           | read   |        | v               | v           |                       | v                   |
+|           | update |        | v               |             |                       | v                   |
+|           | delete |        | v               |             |                       | v                   |
+| User      | create |        |                 | v           |                       |                     |
+|           | read   |        |                 | v           |                       |                     |
+|           | update |        |                 | v           |                       |                     |
+|           | delete |        |                 | v           |                       |                     |
+
