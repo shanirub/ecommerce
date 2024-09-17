@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Product, Category
 from ecommerce.utils import SafeGetObjectMixin
+from core.mixins import GroupRequiredMixin
 
 
 class ProductListView(ListView):
@@ -12,15 +14,16 @@ class ProductListView(ListView):
     context_object_name = 'products'
 
 
-class ProductUpdateView(UserPassesTestMixin, UpdateView):
+class ProductUpdateView(GroupRequiredMixin, UpdateView):
     model = Product
     fields = ['description', 'price', 'stock', 'category']
     template_name = 'update_product.html'
     success_url = reverse_lazy('product_list')
+    allowed_groups = ['staff', 'stock_personnel', 'shift_manager']
 
     def test_func(self):
-        # only allow admin users
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
     def form_valid(self, form):
         # called when form was validated successfully according to model
@@ -33,11 +36,12 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
         return super().form_invalid(form)
 
 
-class ProductCreateView(UserPassesTestMixin, CreateView):
+class ProductCreateView(GroupRequiredMixin, CreateView):
     model = Product
     fields = ['name', 'description', 'price', 'stock', 'category']
     template_name = 'create_product.html'
     success_url = reverse_lazy('product_list')
+    allowed_groups = ['staff', 'shift_manager']
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -49,17 +53,17 @@ class ProductCreateView(UserPassesTestMixin, CreateView):
         return super().form_invalid(form)
 
     def test_func(self):
-        # only allow admin users
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
 
-class BaseProductView(UserPassesTestMixin):
+class BaseProductView(GroupRequiredMixin):
     model = Product
     fields = ['name', 'description', 'price', 'stock', 'category']
     success_url = reverse_lazy('product_list')
 
-    def test_func(self):
-        return self.request.user.is_staff
+    # def test_func(self):
+    #     return self.request.user.is_staff
 
     def get_object(self, *args, **kwargs):
         return self.model.objects.get(pk=self.kwargs['pk'])
@@ -67,19 +71,33 @@ class BaseProductView(UserPassesTestMixin):
 
 class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
     template_name = 'delete_product.html'
+    allowed_groups = ['staff', 'shift_manager']
 
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        user = self.request.user
+        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
+            return super().get(request, *args, **kwargs)
+        else:
+            return render('403.html')
 
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        user = self.request.user
+        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
+            return super().post(request, *args, **kwargs)
+        else:
+            return render('403.html')
 
 
 class ProductDetailView(SafeGetObjectMixin, BaseProductView, DetailView):
     template_name = 'product_detail.html'
+    allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personal']
 
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        user = self.request.user
+        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
+            return super().get(request, *args, **kwargs)
+        else:
+            return render('403.html')
 
 
 class CategoryListView(ListView):

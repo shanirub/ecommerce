@@ -5,9 +5,9 @@
 </head>
 <body>
     <h1>Update Product</h1>
-    {% if success %}
+    {% if success|default:None %}
         <p>Product updated successfully!</p>
-    {% elif error %}
+    {% elif error|default:None %}
         <p>{{ error }}</p>
     {% endif %}
     <form method="post">

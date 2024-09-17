@@ -58,7 +58,7 @@ class Command(BaseCommand):
         staff_group.permissions.set([
             product_permissions.get(codename='add_product'),
             product_permissions.get(codename='view_product'),
-            product_permissions.get(codename='change_product'),  # Limiting this to specific fields requires view logic
+            product_permissions.get(codename='change_product'),  # TODO: Limiting this to specific fields requires view logic
             product_permissions.get(codename='delete_product'),
             category_permissions.get(codename='add_category'),
             category_permissions.get(codename='view_category'),
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         # Stock Personnel Group
         stock_personnel_group.permissions.set([
             product_permissions.get(codename='view_product'),
-            product_permissions.get(codename='change_product'),  # Limiting this to price/quantity requires view logic
+            product_permissions.get(codename='change_product'),  # TODO: Limiting this to price/quantity requires view logic
             category_permissions.get(codename='view_category'),
         ])
         logger.debug("Done with stock_personnel_group permissions")
