@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users',
     'products',
     'orders',
+    'ecommerce',
     'core',
     'django.contrib.admin',
     'django.contrib.auth',
