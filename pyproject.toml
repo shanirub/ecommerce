@@ -12,6 +12,7 @@ pylint = "^3.2.3"
 ipython = "^8.26.0"
 ipdb = "^0.13.13"
 colorlog = "^6.8.2"
+gunicorn = "^23.0.0"
 
 
 [build-system]
