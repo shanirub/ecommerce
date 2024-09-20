@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh Finds Market - Login</title>
+    <title>Fresh Finds Market - {% block title %}Form{% endblock %}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -21,7 +21,7 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h2 {
+        h1 {
             color: #4a86e8;
             font-size: 2.5em;
             margin-bottom: 20px;
@@ -39,7 +39,9 @@
             font-weight: bold;
         }
         input[type="text"],
-        input[type="password"] {
+        input[type="number"],
+        textarea,
+        select {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -61,15 +63,30 @@
         .btn:hover {
             background-color: #3a76d8;
         }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h1>{% block header %}Form{% endblock %}</h1>
+        {% if success %}
+            <p class="success">{% block success_message %}Item created/updated successfully!{% endblock %}</p>
+        {% elif error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn">Login</button>
+            {% block form_fields %}
+            <!-- Form fields will be inserted here -->
+            {% endblock %}
+            <button type="submit" class="btn">{% block submit_button %}Submit{% endblock %}</button>
         </form>
     </div>
 </body>
