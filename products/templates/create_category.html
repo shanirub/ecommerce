@@ -1,29 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Category</title>
-</head>
-<body>
-    <h1>Create Category</h1>
+{% extends "base_update_create_form.html" %}
 
-    {% if success %}
-        <p>Category created successfully!</p>
-    {% elif error %}
-        <p>{{ error }}</p>
-    {% endif %}
+{% block title %}Create Category{% endblock %}
+{% block header %}Create Category{% endblock %}
+{% block success_message %}Category created successfully!{% endblock %}
+{% block submit_button %}Create Category{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block form_fields %}
+    <label for="name">Name:</label>
+    {{ form.name.errors }}
+    {{ form.name }}
 
-        <label for="name">Name:</label>
-        {{ form.name.errors }}
-        {{ form.name }}<br>
-
-        <label for="description">Description:</label>
-        {{ form.description.errors }}
-        {{ form.description }}<br>
-
-        <button type="submit">Create</button>
-    </form>
-</body>
-</html>
+    <label for="description">Description:</label>
+    {{ form.description.errors }}
+    {{ form.description }}
+{% endblock %}
