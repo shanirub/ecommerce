@@ -62,9 +62,6 @@ class BaseProductView(GroupRequiredMixin):
     fields = ['name', 'description', 'price', 'stock', 'category']
     success_url = reverse_lazy('product_list')
 
-    # def test_func(self):
-    #     return self.request.user.is_staff
-
     def get_object(self, *args, **kwargs):
         return self.model.objects.get(pk=self.kwargs['pk'])
 
@@ -74,30 +71,18 @@ class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
     allowed_groups = ['staff', 'shift_manager']
 
     def get(self, request, *args, **kwargs):
-        user = self.request.user
-        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
-            return super().get(request, *args, **kwargs)
-        else:
-            return render('403.html')
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        user = self.request.user
-        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
-            return super().post(request, *args, **kwargs)
-        else:
-            return render('403.html')
+        return super().post(request, *args, **kwargs)
 
 
 class ProductDetailView(SafeGetObjectMixin, BaseProductView, DetailView):
     template_name = 'product_detail.html'
-    allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personal']
+    allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personnel']
 
     def get(self, request, *args, **kwargs):
-        user = self.request.user
-        if user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser:
-            return super().get(request, *args, **kwargs)
-        else:
-            return render('403.html')
+        return super().get(request, *args, **kwargs)
 
 
 class CategoryListView(ListView):
@@ -106,15 +91,16 @@ class CategoryListView(ListView):
     context_object_name = 'categories'
 
 
-class CategoryUpdateView(UserPassesTestMixin, UpdateView):
+class CategoryUpdateView(GroupRequiredMixin, UpdateView):
     model = Category
     fields = ['description']
     template_name = 'update_category.html'
     success_url = reverse_lazy('category_list')
+    allowed_groups = ['staff', 'shift_manager']
 
     def test_func(self):
-        # only allow admin users
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
     def form_valid(self, form):
         # called when form was validated successfully according to model
@@ -127,11 +113,12 @@ class CategoryUpdateView(UserPassesTestMixin, UpdateView):
         return super().form_invalid(form)
 
 
-class CategoryCreateView(UserPassesTestMixin, CreateView):
+class CategoryCreateView(GroupRequiredMixin, CreateView):
     model = Category
     fields = ['name', 'description']
     template_name = 'create_category.html'
     success_url = reverse_lazy('category_list')
+    allowed_groups = ['staff', 'shift_manager']
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -142,17 +129,18 @@ class CategoryCreateView(UserPassesTestMixin, CreateView):
         return super().form_invalid(form)
 
     def test_func(self):
-        # only allow admin users
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
 
-class BaseCategoryView(UserPassesTestMixin):
+class BaseCategoryView(GroupRequiredMixin):
     model = Category
     fields = ['name', 'description']
     success_url = reverse_lazy('category_list')
 
     def test_func(self):
-        return self.request.user.is_staff
+        user = self.request.user
+        return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
     def get_object(self, *args, **kwargs):
         return self.model.objects.get(pk=self.kwargs['pk'])
@@ -160,6 +148,7 @@ class BaseCategoryView(UserPassesTestMixin):
 
 class CategoryDeleteView(SafeGetObjectMixin, BaseCategoryView, DeleteView):
     template_name = 'delete_category.html'
+    allowed_groups = ['staff', 'shift_manager']
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -170,6 +159,7 @@ class CategoryDeleteView(SafeGetObjectMixin, BaseCategoryView, DeleteView):
 
 class CategoryDetailView(SafeGetObjectMixin, BaseCategoryView, DetailView):
     template_name = 'category_detail.html'
+    allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personnel']
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
