@@ -14,10 +14,15 @@ from pathlib import Path
 import os
 import colorlog
 import dj_database_url
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from local_settings.env if it exists
+dotenv_path = BASE_DIR / "local_settings.env"
+if dotenv_path.exists():
+    load_dotenv(dotenv_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
