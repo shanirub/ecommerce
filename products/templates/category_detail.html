@@ -1,12 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ category.name }} - Category Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Finds Market - {{ category.name }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4a86e8;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .category-info {
+            background-color: #e6f3ff;
+            border: 2px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .description {
+            margin-top: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #4a86e8;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #3a76d8;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #d73c2c;
+        }
+        .pixel-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background-color: #4a86e8;
+            clip-path: polygon(
+                0% 0%, 25% 0%, 25% 25%, 50% 25%, 50% 0%, 75% 0%, 75% 25%, 100% 25%, 100% 50%,
+                75% 50%, 75% 75%, 100% 75%, 100% 100%, 75% 100%, 75% 75%, 50% 75%, 50% 100%,
+                25% 100%, 25% 75%, 0% 75%, 0% 50%, 25% 50%, 25% 25%, 0% 25%
+            );
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ category.name }}</h1>
-    <p>Description: {{ category.description }}</p>
-    <a href="{% url 'category_list' %}">Back to Category List</a>
-    <a href="{% url 'delete_category' category.id %}">Delete Category</a>
+    <div class="container">
+        <h1>{{ category.name }}</h1>
+        <div class="category-info">
+            <div class="pixel-icon"></div>
+            <p class="description">Description: {{ category.description }}</p>
+        </div>
+        <a href="{% url 'category_list' %}" class="btn btn-primary">Back to Category List</a>
+        <a href="{% url 'delete_category' category.id %}" class="btn btn-danger">Delete Category</a>
+    </div>
 </body>
 </html>

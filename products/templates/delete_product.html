@@ -1,14 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Confirm Deletion</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Finds Market - Delete {{ product.name }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e74c3c;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background-color: #ffe6e6;
+            border: 2px solid #ffb3b3;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #4a86e8;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #3a76d8;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #d73c2c;
+        }
+    </style>
 </head>
 <body>
-    <h1>Are you sure you want to delete "{{ object.name }}"?</h1>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Yes, delete</button>
-        <a href="{% url 'product_list' %}">Cancel</a>
-    </form>
+    <div class="container">
+        <h1>Delete Product: {{ product.name }}</h1>
+        <div class="warning">
+            <p>Are you sure you want to delete this product?</p>
+            <p><strong>Name:</strong> {{ product.name }}</p>
+            <p><strong>Price:</strong> ${{ product.price }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">Cancel</a>
+        </form>
+    </div>
 </body>
 </html>

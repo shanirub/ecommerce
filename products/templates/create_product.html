@@ -1,41 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Product</title>
-</head>
-<body>
-    <h1>Create Product</h1>
+{% extends "base_update_create_form.html" %}
 
-    {% if success %}
-        <p>Product created successfully!</p>
-    {% elif error %}
-        <p>{{ error }}</p>
-    {% endif %}
+{% block title %}Create Product{% endblock %}
+{% block header %}Create Product{% endblock %}
+{% block success_message %}Product created successfully!{% endblock %}
+{% block submit_button %}Create Product{% endblock %}
 
-    <form method="post">
-        {% csrf_token %}
+{% block form_fields %}
+    <label for="name">Name:</label>
+    {{ form.name.errors }}
+    {{ form.name }}
 
-        <label for="name">Name:</label>
-        {{ form.name.errors }}
-        {{ form.name }}<br>
+    <label for="description">Description:</label>
+    {{ form.description.errors }}
+    {{ form.description }}
 
-        <label for="description">Description:</label>
-        {{ form.description.errors }}
-        {{ form.description }}<br>
+    <label for="price">Price:</label>
+    {{ form.price.errors }}
+    {{ form.price }}
 
-        <label for="price">Price:</label>
-        {{ form.price.errors }}
-        {{ form.price }}<br>
+    <label for="stock">Stock:</label>
+    {{ form.stock.errors }}
+    {{ form.stock }}
 
-        <label for="stock">Stock:</label>
-        {{ form.stock.errors }}
-        {{ form.stock }}<br>
+    <label for="category">Category:</label>
+    {{ form.category.errors }}
+    {{ form.category }}
+{% endblock %}
 
-        <label for="category">Category:</label>
-        {{ form.category.errors }}
-        {{ form.category }}<br>
-
-        <button type="submit">Create</button>
-    </form>
-</body>
-</html>
