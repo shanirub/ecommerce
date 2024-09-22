@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from users.views import SignUpView
 from django.contrib.auth.views import LoginView
+from core.views import HomePageView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,5 +27,6 @@ urlpatterns = [
     path('users/', include('users.urls')),  # Include your app's URLs
     path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
     path('products/', include('products.urls')),
+    path('', HomePageView.as_view(), name='home')
 
 ]

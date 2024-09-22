@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center">
+    <h1>Welcome to the E-commerce Platform</h1>
+    <p>Explore our products and manage your orders with ease.</p>
+
+    <div class="btn-group mt-3">
+        <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+        <a href="{% url 'signup' %}" class="btn btn-secondary">Sign Up</a>
+    </div>
+</div>
+{% endblock %}
