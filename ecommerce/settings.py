@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-6(=73v%$r%s8o$=*1!mw0=$-q$u6x3hi_8il6xrac3^axv=uuf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['koopakart.onrender.com']
 
 AUTH_USER_MODEL = 'users.User'
 

@@ -12,3 +12,6 @@ __pycache__/
 
 # ignore log file
 django.log
+
+# ignore env files
+*.env
