@@ -15,3 +15,6 @@ django.log
 
 # ignore env files
 *.env
+static/**/*.js
+static/vendor/
+staticfiles/
