@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #4CAF50;">
+    <div class="text-center p-5" style="background-color: #8BC34A; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.3); max-width: 500px; width: 100%;">
+        <h1 style="color: #FFA000; font-family: 'Arial', sans-serif; font-size: 2.5em; text-shadow: 2px 2px #B71C1C;">Welcome to KoopaKart!</h1>
+        <p style="color: #1B5E20; font-size: 1.2em; margin-top: 15px;">Race through our shop for the best items in the Koopa Kingdom!</p>
+
+        <div style="margin: 30px 0;">
+            <img src="{% static 'images/koopa.jpg' %}" alt="Koopa Character" style="width: auto; height: 200px; image-rendering: pixelated;">
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            <a href="{% url 'login' %}" class="btn btn-lg mx-2" style="background-color: #FFA000; color: white; border: none; width: 120px;">Login</a>
+            <a href="{% url 'signup' %}" class="btn btn-lg mx-2" style="background-color: #B71C1C; color: white; border: none; width: 120px;">Sign Up</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
