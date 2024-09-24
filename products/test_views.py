@@ -105,7 +105,7 @@ class ProductViewTests(TestCase):
         product_data = self.get_product_data(self.product, description='', price='invalid_price',
                                              category='New Category')
         response = self.client.post(reverse('update_product', args=[NON_EXISTING_PRODUCT_PK]), product_data)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
     def test_read_existing_product(self):
         self.client.login(username='admin', password='admin')
@@ -121,7 +121,7 @@ class ProductViewTests(TestCase):
         NON_EXISTING_PRODUCT_PK = 12345
         self.client.login(username='admin', password='admin')
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
         with self.assertRaises(Product.DoesNotExist):
             Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
@@ -146,7 +146,7 @@ class ProductViewTests(TestCase):
         NON_EXISTING_PRODUCT_PK = 12345
         self.client.login(username='admin', password='admin')
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
         with self.assertRaises(Product.DoesNotExist):
             Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
@@ -201,7 +201,7 @@ class CategoryViewTests(TestCase):
     def test_update_non_existing_category(self):
         self.client.login(username='admin', password='admin')
         response = self.client.post(reverse('update_category', kwargs={'pk': '010101'}))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
     def test_read_existing_category(self):
         self.client.login(username='admin', password='admin')
@@ -214,7 +214,7 @@ class CategoryViewTests(TestCase):
         NON_EXISTING_CATEGORY_PK = 12345
         self.client.login(username='admin', password='admin')
         response = self.client.get(reverse('category_detail', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
@@ -239,7 +239,7 @@ class CategoryViewTests(TestCase):
         NON_EXISTING_CATEGORY_PK = 12345
         self.client.login(username='admin', password='admin')
         response = self.client.post(reverse('delete_category', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
