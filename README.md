@@ -9,6 +9,8 @@ This project was created for educational purposes. My main priorities include:
 2. **Learning New Technologies**: Prioritizing learning over quick solutions. While this e-commerce system could have been built more simply, my goal is to explore and understand new technologies.
 3. **Clarity and Accessibility**: Although I am the sole developer, I aim to document everything clearly to ensure that anyone can understand my ideas and implementations.
 
+![Start Page](images/start_page.png)
+
 For a detailed list of the technologies and packages used in this project, please refer to the [Technologies Used](#technologies-used) section.
 
 
