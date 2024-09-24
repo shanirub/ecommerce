@@ -1,18 +1,141 @@
-# ecommerce
-### A very basic e-commerce system, built using django.
+# KoopaKart
+### An E-commerce System Inspired by the Super Mario Universe
 
----
-**Apps:**
-  1. `products` (modles `Product`, `Category`)
-  2. `users` - (models `User`)
-  3. `orders` (models `Order`, `OrderItem`)
+## Description
+KoopaKart is a full-fledged e-commerce solution designed for customers to handle their orders and for staff to maintain products and user accounts. To make the mundane task of buying everyday items like bread and milk more engaging, this project places its operations in the whimsical Super Mario universe. In this world, products are represented as stars and mushrooms, while users take on the roles of brave plumbers and their helpful toads.
 
----
-Unit tests are written for each step and ran locally before pushing to repo.
+This project was created for educational purposes. My main priorities include:
+1. **Best Practices**: Adhering to conventions and using industry-standard packages.
+2. **Learning New Technologies**: Prioritizing learning over quick solutions. While this e-commerce system could have been built more simply, my goal is to explore and understand new technologies.
+3. **Clarity and Accessibility**: Although I am the sole developer, I aim to document everything clearly to ensure that anyone can understand my ideas and implementations.
 
----
+![Start Page](images/start_page.png)
 
-![image](https://github.com/user-attachments/assets/eb8a0885-6435-4f8e-81b0-effb8093624b)
+For a detailed list of the technologies and packages used in this project, please refer to the [Technologies Used](#technologies-used) section.
 
 
-[![Django Tests](https://github.com/shanirub/ecommerce/actions/workflows/django.yml/badge.svg)](https://github.com/shanirub/ecommerce/actions/workflows/django.yml)
+## Table of Contents
+- [Installation](#installation)
+- [Deployment](#deployment)
+- [Usage](#usage)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Screenshots / Demo](#screenshots--demo)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+- [Contact Information](#contact-information)
+
+## Installation
+To set up the project locally, follow these steps:
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/KoopaKart.git
+   cd KoopaKart
+   ```
+
+2. **Install Poetry**
+   If you haven't installed Poetry yet, you can do so by running:
+   ```bash
+   pip install --upgrade pip
+   pip install poetry
+   ```
+
+3. **Install Dependencies**
+   Use Poetry to install the project's dependencies:
+   ```bash
+   poetry install
+   ```
+
+4. **Set Up Your Environment Variables**
+   Create a `.env` file in the root directory of the project and add your environment variables based on the following example:
+   ```
+   DB_NAME=your_db_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_HOST=your_db_host
+   DB_PORT=your_db_port
+   DATABASE_URL=your_database_url
+   ```
+
+5. **Run Migrations and Start the Development Server**
+   Run the following commands to apply migrations and start the server:
+   ```bash
+   poetry shell
+   python manage.py migrate
+   python manage.py runserver
+   ```
+
+Now, you should be able to access the application at `http://127.0.0.1:8000/`.
+
+## Deployment
+
+This project is deployed on Render, a cloud platform that allows you to host applications with ease. I used Render to gain hands-on experience with deploying a Django application in the cloud.
+
+You can access the live version of KoopaKart at the following URL:
+[KoopaKart Live](https://koopakart.onrender.com)
+
+Feel free to explore the project and experience the functionality firsthand. Screenshots and additional details will be added soon!
+
+## Usage
+Coming soon
+
+## Features
+
+- **User Management**: Register new users, log in, and log out.
+- **Permissions**: Users are categorized into four groups: Customers, Staff Workers, Shift Managers (staff with additional permissions), and Stock Workers (staff with limited permissions). Permissions are managed at the model level to ensure database integrity and at the view level to restrict access to authorized users only.
+- **Product Management**: Create new products and product categories, as well as manage stock levels and pricing changes.
+- **Order Management**: Create new orders (shopping carts) and manage the items within them (to be implemented soon).
+- **Logging**: An extensive logging system that uses different log levels to facilitate easy debugging.
+
+### Planned Features
+1. Mock payment integration with PayPal.
+2. Integration of Google authentication for simplified registration and login.
+3. Usage of Redis for caching customer orders.
+
+## Technologies Used
+
+This project is primarily developed in Python, utilizing the Django framework to create a robust web application, with PostgreSQL as the database management system. The complete list of packages used can be found in the pyproject.toml file managed by Poetry.
+
+Key packages include:
+
+- **Django**: The core framework for building the web application.
+- **PostgreSQL**: The database management system used for storing and managing application data.
+- **Pylint**: A tool for identifying issues in code structure and maintaining quality.
+- **IPython** & **IPDB**: Enhancements for debugging, providing a more user-friendly experience.
+- **Colorlog**: Enables colored log messages for improved readability in the console.
+- **Whitenoise**: Simplifies the handling of static files in a production environment.
+- **Python-Dotenv**: Loads local `.env` files for managing environment-specific settings.
+- **Factory Boy**: Facilitates clearer and more thorough testing by allowing the creation of complex test data with less repetitive code.
+- **Gunicorn**: A synchronous HTTP server for serving the application in production.
+
+
+## Screenshots / Demo
+Coming soon
+
+## Testing
+To run the tests locally, first ensure you have installed the necessary dependencies and start a Poetry shell. Then, use the following command:
+
+   ```bash
+   poetry shell
+   python manage.py test
+   ```
+
+## Contributing
+I welcome suggestions and ideas for improvement. However, please note that all coding contributions are currently handled by me. If you have any feedback or feature requests, feel free to reach out!
+
+## Disclaimer
+"While Nintendo holds a special place in my heart and I've spent countless hours enjoying their delightful games and consoles, I want to clarify that I have no official affiliation with the company. References to their fantastic art are purely for educational purposes and not intended to imply any connection with this amazing brand."
+
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file in the project root for more details. The licenses for the individual packages used in this project can be found in their respective repositories.
+
+## Acknowledgments
+- Shani Rubovitch: Sole developer and creator of KoopaKart.
+- Inspiration from the Super Mario universe for creative elements.
+- The open-source community for providing valuable resources and libraries.
+
+## Contact Information
+You can reach me at [shani.rubovitch@gmail.com](mailto:shani.rubovitch@gmail.com) or through the GitHub issue tracker for any questions or feedback.
