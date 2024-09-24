@@ -78,9 +78,9 @@ You can access the live version of KoopaKart at the following URL:
 Feel free to explore the project and experience the functionality firsthand. Screenshots and additional details will be added soon!
 
 ## Usage
-How to run the project, including commands to start the server and perform common tasks.
+Coming soon
 
-### Features
+## Features
 
 - **User Management**: Register new users, log in, and log out.
 - **Permissions**: Users are categorized into four groups: Customers, Staff Workers, Shift Managers (staff with additional permissions), and Stock Workers (staff with limited permissions). Permissions are managed at the model level to ensure database integrity and at the view level to restrict access to authorized users only.
@@ -111,22 +111,29 @@ Key packages include:
 
 
 ## Screenshots / Demo
-Visuals or links showcasing the application in action to give potential users and employers a clear idea of what to expect.
+Coming soon
 
 ## Testing
-Instructions for running tests, including any testing frameworks used and how to interpret the results.
+To run the tests locally, first ensure you have installed the necessary dependencies and start a Poetry shell. Then, use the following command:
+
+   ```bash
+   poetry shell
+   python manage.py test
+   ```
 
 ## Contributing
-Guidelines for contributing to the project, including how to submit issues or pull requests.
+I welcome suggestions and ideas for improvement. However, please note that all coding contributions are currently handled by me. If you have any feedback or feature requests, feel free to reach out!
 
 ## Disclaimer
 "While Nintendo holds a special place in my heart and I've spent countless hours enjoying their delightful games and consoles, I want to clarify that I have no official affiliation with the company. References to their fantastic art are purely for educational purposes and not intended to imply any connection with this amazing brand."
 
 ## License
-Information about the licensing of the project, if applicable.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file in the project root for more details. The licenses for the individual packages used in this project can be found in their respective repositories.
 
 ## Acknowledgments
-Credits to resources, libraries, or individuals that contributed to the project.
+- Shani Rubovitch: Sole developer and creator of KoopaKart.
+- Inspiration from the Super Mario universe for creative elements.
+- The open-source community for providing valuable resources and libraries.
 
 ## Contact Information
-Your contact details, such as an email address or LinkedIn profile, for inquiries related to the project.
+You can reach me at [shani.rubovitch@gmail.com](mailto:shani.rubovitch@gmail.com) or through the GitHub issue tracker for any questions or feedback.
