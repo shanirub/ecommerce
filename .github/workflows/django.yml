@@ -12,6 +12,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        options: > 
+          --health-cmd "pg_isready -U myuser"  # Check if the PostgreSQL service is ready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -26,7 +41,6 @@ jobs:
         pip install --upgrade pip
         pip install poetry
     
-
     - name: Install dependencies
       run: poetry install
 
