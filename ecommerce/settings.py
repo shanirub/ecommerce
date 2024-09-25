@@ -15,6 +15,7 @@ import os
 import colorlog
 import dj_database_url
 from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,11 +28,13 @@ if dotenv_path.exists():
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6(=73v%$r%s8o$=*1!mw0=$-q$u6x3hi_8il6xrac3^axv=uuf'
+if 'DJANGO_SECRET_KEY' not in os.environ:
+    # render
+    SECRET_KEY = get_random_secret_key()
+else:
+    # local
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 # on render deployment: ALLOWED_HOSTS = ['koopakart.onrender.com']
 # locally, local_settings.env is used
@@ -66,6 +69,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'ecommerce.middleware.CustomErrorMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -110,6 +114,9 @@ else:
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 
+if 'DEBUG' not in os.environ:
+    DEBUG = False
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -148,6 +155,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
