@@ -115,6 +115,7 @@ else:
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 
+
 if 'DEBUG' not in os.environ:
     DEBUG = False
 
@@ -194,8 +195,4 @@ LOGGING = {
         },
     },
 }
-
-
-
-
 

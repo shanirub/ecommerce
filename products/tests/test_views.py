@@ -1,8 +1,7 @@
-from unicodedata import category
-
-from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
+from products.models import Product, Category
+from django.contrib.auth.models import Group
 
 from ecommerce.management.commands.assign_permissions import Command
 from products.models import Product, Category
@@ -35,6 +34,10 @@ class ProductViewTests(TestCase):
         return product_data
 
     def setUp(self):
+
+        self.admin_user = UserFactory(username='admin', password='admin', is_superuser=True)
+        self.category = CategoryFactory()
+        self.product = ProductFactory(category=self.category)
         # Set up permissions using assign_permissions script
         Command().handle()
 
@@ -93,6 +96,7 @@ class ProductViewTests(TestCase):
         expected_errors = {
             'name': ['This field is required.'],
             'price': ['Enter a number.'],
+            'price': ['Enter a number.'],
             'category': ['This field is required.']
         }
         self.assertEqual(form.errors, expected_errors)
@@ -116,8 +120,7 @@ class ProductViewTests(TestCase):
         self.client.login(username=self.shift_manager_user.username, password='password')
         product_data = self.get_product_data()
         response = self.client.post(reverse('update_product', args=[NON_EXISTING_PRODUCT_PK]), product_data)
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 404)
 
     def test_read_existing_product(self):
         self.client.login(username=self.shift_manager_user.username, password='password')
@@ -133,7 +136,7 @@ class ProductViewTests(TestCase):
         NON_EXISTING_PRODUCT_PK = 12345
         self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
+        self.assertEqual(response.status_code, 404)
 
 
     def test_delete_existing_product(self):
@@ -160,10 +163,15 @@ class ProductViewTests(TestCase):
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
         self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
 
+        with self.assertRaises(Product.DoesNotExist):
+            Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
 
 
 class CategoryViewTests(TestCase):
+
     def setUp(self):
+        self.admin_user = UserFactory(username='admin', password='admin', is_superuser=True)
+        self.category = CategoryFactory()
         # Set up permissions using assign_permissions script
         Command().handle()
 
