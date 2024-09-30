@@ -22,10 +22,11 @@ class ProductViewTests(TestCase):
     def get_product_data(self, **overrides):
         """
         create a dict of Product attributes using factory
+        Product is not saved in db
 
         # TODO used for create/update views scenarios.
         # TODO check if needed, or factory boy features are enough
-        
+
         :param overrides: dict of attributes and values to update
         :return: dict of Product attributes
         """

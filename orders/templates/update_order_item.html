@@ -1,0 +1,12 @@
+{% extends 'base_update_create_form.html' %}
+
+{% block title %}Update Order Item{% endblock %}
+{% block header %}Update Order Item{% endblock %}
+
+{% block form_fields %}
+    <label for="id_quantity">Quantity:</label>
+    <input type="number" name="quantity" id="id_quantity" required min="1" value="{{ object.quantity }}">
+
+    <label for="id_price">Price:</label>
+    <input type="number" name="price" id="id_price" required step="0.01" min="0" value="{{ object.price }}">
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base_update_create_form.html' %}
+
+{% block title %}Create Order Item{% endblock %}
+{% block header %}Create Order Item{% endblock %}
+
+{% block form_fields %}
+    <label for="id_product">Product:</label>
+    <select name="product" id="id_product" required>
+        {% for product in products %}
+            <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="id_quantity">Quantity:</label>
+    <input type="number" name="quantity" id="id_quantity" required min="1" value="1">
+
+    <label for="id_price">Price:</label>
+    <input type="number" name="price" id="id_price" required step="0.01" min="0">
+{% endblock %}

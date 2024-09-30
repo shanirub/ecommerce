@@ -1,0 +1,13 @@
+{% extends 'base_update_create_form.html' %}
+
+{% block title %}Delete Order Item{% endblock %}
+{% block header %}Delete Order Item{% endblock %}
+
+<p>Are you sure you want to delete the following item?</p>
+<p>{{ object }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn">Confirm Deletion</button>
+    <a href="{% url 'order_list' %}" class="btn">Cancel</a>
+</form>
