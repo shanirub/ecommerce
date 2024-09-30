@@ -12,6 +12,10 @@ logger = logging.getLogger('django')
 
 class ProductViewPermissionTest(TestCase):
     """
+    test views permissions
+
+    the functionality of views is tested in test_views.py
+
     quick reference to http response status codes used in tests:
     200 - ok
     302 - redirect

@@ -44,7 +44,7 @@ class ProductFactory(factory.django.DjangoModelFactory):
         model = Product
 
     name = factory.Faker('word')  # Generates a random word as the product name
-    description = 'Test Product Description'
+    description = factory.Faker('word')
     price = 100.0
     stock = 10
     category = factory.SubFactory(CategoryFactory)
