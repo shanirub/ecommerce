@@ -161,7 +161,7 @@ class ProductViewTests(TestCase):
         response = self.client.get(reverse('delete_product', args=[NON_EXISTING_PRODUCT_PK]))
         self.assertEqual(response.status_code, 404)
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
+        self.assertEqual(response.status_code, 404)
 
         with self.assertRaises(Product.DoesNotExist):
             Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
@@ -210,8 +210,7 @@ class CategoryViewTests(TestCase):
     def test_update_non_existing_category(self):
         self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('update_category', kwargs={'pk': '010101'}))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 404)
 
     def test_read_existing_category(self):
         self.client.login(username=self.shift_manager_user.username, password='password')
@@ -224,8 +223,7 @@ class CategoryViewTests(TestCase):
         NON_EXISTING_CATEGORY_PK = 12345
         self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('category_detail', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 404)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
@@ -250,7 +248,7 @@ class CategoryViewTests(TestCase):
         NON_EXISTING_CATEGORY_PK = 12345
         self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('delete_category', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
+        self.assertEqual(response.status_code, 404)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
