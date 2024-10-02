@@ -34,8 +34,6 @@ class ProductViewTests(TestCase):
         return product_data
 
     def setUp(self):
-
-        self.admin_user = UserFactory(username='admin', password='admin', is_superuser=True)
         self.category = CategoryFactory()
         self.product = ProductFactory(category=self.category)
         # Set up permissions using assign_permissions script
@@ -170,7 +168,6 @@ class ProductViewTests(TestCase):
 class CategoryViewTests(TestCase):
 
     def setUp(self):
-        self.admin_user = UserFactory(username='admin', password='admin', is_superuser=True)
         self.category = CategoryFactory()
         # Set up permissions using assign_permissions script
         Command().handle()

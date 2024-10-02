@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Order, OrderItem
+from orders.models import Order, OrderItem
 from users.models import User
 from products.models import Category, Product
 from ecommerce.utils import compare_model_instances

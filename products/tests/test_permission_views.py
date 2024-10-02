@@ -163,6 +163,7 @@ class CategoryViewPermissionsTest(TestCase):
         self.delete_url = reverse('delete_category', args=[self.category.pk])
         self.detail_url = reverse('category_detail', args=[self.category.pk])
 
+    # TODO: duplicate move to utils
     def check_permission(self, url, user, expected_status, method='get', data=None):
         """Helper to check permissions for different users and methods."""
         self.client.login(username=user.username, password='password')
