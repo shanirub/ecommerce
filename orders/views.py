@@ -115,3 +115,19 @@ class OrderItemListView(ListView):
             return OrderItem.objects.all()
         else:
             return OrderItem.objects.filter(order__user=self.request.user)
+
+
+class OrderItemDetailView(GroupRequiredMixin, DetailView):
+    model = OrderItem
+    template_name = 'orders/orderitem_detail.html'
+    context_object_name = 'order_item'
+    allowed_groups = ['staff', 'shift_manager', 'customers']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order'] = self.object.order
+        return context
+
+    def test_func(self):
+        order_item = self.get_object()
+        return super().test_func() and self.request.user in order_item.order.customers.all()
