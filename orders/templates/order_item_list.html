@@ -21,8 +21,8 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }}</td>
                 <td>
-                    <a href="{% url 'order_item_update' item.id %}">Edit</a>
-                    <a href="{% url 'order_item_delete' item.id %}">Delete</a>
+                    <a href="{% url 'orderitem-update' item.id %}">Edit</a>
+                    <a href="{% url 'orderitem-delete' item.id %}">Delete</a>
                 </td>
             </tr>
         {% empty %}
@@ -33,5 +33,5 @@
     </tbody>
 </table>
 
-<a href="{% url 'order_item_create' order.id %}" class="btn">Add Order Item</a>
+<a href="{% url 'orderitem-create' order.id %}" class="btn">Add Order Item</a>
 {% endblock %}
