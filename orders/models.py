@@ -21,6 +21,9 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         try:
             self.full_clean()
+            #import ipdb; ipdb.set_trace()
+            #if not isinstance(self.is_paid, bool):
+            #    raise ValidationError("is_paid should be True or False")
             super().save(*args, **kwargs)
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)

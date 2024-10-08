@@ -23,9 +23,9 @@
             {% endfor %}
         </ul>
 
-        <a href="{% url 'order_update' order.id %}" class="btn">Edit Order</a>
-        <a href="{% url 'order_delete' order.id %}" class="btn">Delete Order</a>
-        <a href="{% url 'order_list' %}" class="btn">Back to Orders</a>
+        <a href="{% url 'order-update' order.id %}" class="btn">Edit Order</a>
+        <a href="{% url 'order-delete' order.id %}" class="btn">Delete Order</a>
+        <a href="{% url 'order-list' %}" class="btn">Back to Orders</a>
     </div>
 </body>
 </html>

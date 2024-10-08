@@ -1,10 +1,12 @@
 from django.views.generic import ListView, DetailView
+from django.core.exceptions import ValidationError
 from .models import Order, OrderItem
 from core.mixins import GroupRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from ecommerce.utils import SafeGetObjectMixin
+from ecommerce.utils import validate_raw_bool_value
 
 def is_shift_manager(user):
     return user.groups.filter(name='shift_manager').exists()
@@ -35,26 +37,40 @@ class OrderCreateView(GroupRequiredMixin, CreateView):
     model = Order
     fields = []
     template_name = 'create_order.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
 
+    def post(self, request, *args, **kwargs):
+        raw_value = self.request.POST.get('is_paid')
+        if validate_raw_bool_value(raw_value):
+            return super().post(self, request, *args, **kwargs)
+
+        raise ValidationError("is_paid field must be True or False")
+
     def form_valid(self, form):
-        form.instance.user = self.request.user  # Set the user to the logged-in user
+        form.instance.user = self.request.user
         return super().form_valid(form)
 
 
-class OrderUpdateView(GroupRequiredMixin, UpdateView):
+class OrderUpdateView(GroupRequiredMixin, SafeGetObjectMixin, UpdateView):
     model = Order
     fields = ['is_paid']
     template_name = 'update_order.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
+
+    def post(self, request, *args, **kwargs):
+        raw_value = self.request.POST.get('is_paid')
+        if validate_raw_bool_value(raw_value):
+            return super().post(self, request, *args, **kwargs)
+
+        raise ValidationError("is_paid field must be True or False")
 
 
 class OrderDeleteView(GroupRequiredMixin, SafeGetObjectMixin, DeleteView):
     model = Order
     template_name = 'delete_order.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
 
 

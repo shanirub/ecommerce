@@ -4,9 +4,7 @@ from django.urls import reverse
 
 from products.tests.factories import CategoryFactory, ProductFactory, UserFactory
 from ecommerce.management.commands.assign_permissions import Command
-from products.models import Product, Category
-from orders.models import Order, OrderItem
-from factories import OrderItemFactory, OrderFactory
+
 
 import logging
 

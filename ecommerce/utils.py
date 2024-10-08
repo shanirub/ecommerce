@@ -1,7 +1,19 @@
 from django.db import models
 from django.http import Http404
 from django.views.generic import View
+from django.db import models
 
+def validate_raw_bool_value(value):
+    """
+    helper method to assure a value is True or False, and not just truthy or falsy
+    used in various views to validate bool values
+    (in model level, raw value is already processed by django as a truthy / falsy.
+        for example: int(15) will be processed as False)
+
+    :param value: raw value (given as str in view)
+    :return: True if value is indeed a bool, False otherwise
+    """
+    return value in ['True', 'False']
 
 class SafeGetObjectMixin(View):
     def get_object(self, queryset=None):
@@ -13,6 +25,7 @@ class SafeGetObjectMixin(View):
         try:
             if queryset is None:
                 queryset = self.get_queryset()
+            print(f"trying to safe get {queryset}")
             return super().get_object(queryset)
         except self.model.DoesNotExist:
             raise Http404(f"{self.model.__name__} does not exist")

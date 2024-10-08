@@ -54,9 +54,9 @@
                     <td>{{ order.created_at }}</td>
                     <td>{{ order.is_paid|yesno:"Paid,Not Paid" }}</td>
                     <td>
-                        <a href="{% url 'order_detail' order.id %}" class="btn">View</a>
-                        <a href="{% url 'order_update' order.id %}" class="btn">Edit</a>
-                        <a href="{% url 'order_delete' order.id %}" class="btn">Delete</a>
+                        <a href="{% url 'order-detail' order.id %}" class="btn">View</a>
+                        <a href="{% url 'order-update' order.id %}" class="btn">Edit</a>
+                        <a href="{% url 'order-delete' order.id %}" class="btn">Delete</a>
                     </td>
                 </tr>
                 {% empty %}
@@ -66,7 +66,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'order_create' %}" class="btn">Create New Order</a>
+        <a href="{% url 'order-create' %}" class="btn">Create New Order</a>
     </div>
 </body>
 </html>
