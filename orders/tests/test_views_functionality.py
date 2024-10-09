@@ -193,7 +193,7 @@ class OrderItemViewTest(TestCase):
         self.client.login(username=self.customer_user.username, password='password')
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'orders/orderitem_detail.html')
+        self.assertTemplateUsed(response, 'order_item_detail.html')
 
     def test_read_non_existent_order_item(self):
         NON_EXISTENT_ORDER_ITEM_PK = 12345

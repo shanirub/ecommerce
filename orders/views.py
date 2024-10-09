@@ -77,11 +77,11 @@ class OrderDeleteView(GroupRequiredMixin, SafeGetObjectMixin, DeleteView):
 ''' OrderItem views'''
 # TODO: create super class for OrderItem views? lots of duplicate code
 
-class OrderItemCreateView(UserPassesTestMixin, CreateView):
+class OrderItemCreateView(GroupRequiredMixin, CreateView):
     model = OrderItem
     fields = ['product', 'quantity', 'price']
     template_name = 'create_order_item.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
 
     def form_valid(self, form):
         form.instance.order = self.get_order()  # Set the related order
@@ -89,7 +89,7 @@ class OrderItemCreateView(UserPassesTestMixin, CreateView):
 
     def get_order(self):
         """Helper method to get the related order"""
-        return Order.objects.get(pk=self.kwargs['order_id'])
+        return Order.objects.get(pk=self.kwargs['order_pk'])
 
     def test_func(self):
         # Check if the user is either the order creator or a shift manager
@@ -97,11 +97,11 @@ class OrderItemCreateView(UserPassesTestMixin, CreateView):
         return self.request.user == order.user or is_shift_manager(self.request.user)
 
 
-class OrderItemUpdateView(UserPassesTestMixin, UpdateView):
+class OrderItemUpdateView(SafeGetObjectMixin, GroupRequiredMixin, UpdateView):
     model = OrderItem
     fields = ['quantity', 'price']
     template_name = 'update_order_item.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
 
     def test_func(self):
         # Check if the user is either the order item creator or a shift manager
@@ -109,10 +109,10 @@ class OrderItemUpdateView(UserPassesTestMixin, UpdateView):
         return self.request.user == order_item.order.user or is_shift_manager(self.request.user)
 
 
-class OrderItemDeleteView(SafeGetObjectMixin, UserPassesTestMixin, DeleteView):
+class OrderItemDeleteView(SafeGetObjectMixin, GroupRequiredMixin, DeleteView):
     model = OrderItem
     template_name = 'delete_order_item.html'
-    success_url = reverse_lazy('order_list')
+    success_url = reverse_lazy('order-list')
 
     def test_func(self):
         # Check if the user is either the order item creator or a shift manager
@@ -120,7 +120,7 @@ class OrderItemDeleteView(SafeGetObjectMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == order_item.order.user or is_shift_manager(self.request.user)
 
 
-class OrderItemListView(ListView):
+class OrderItemListView(GroupRequiredMixin, ListView):
     model = OrderItem
     template_name = 'order_item_list.html'
     context_object_name = 'order_items'
@@ -135,7 +135,7 @@ class OrderItemListView(ListView):
 
 class OrderItemDetailView(GroupRequiredMixin, DetailView):
     model = OrderItem
-    template_name = 'orders/orderitem_detail.html'
+    template_name = 'order_item_detail.html'
     context_object_name = 'order_item'
     allowed_groups = ['staff', 'shift_manager', 'customers']
 
@@ -143,7 +143,3 @@ class OrderItemDetailView(GroupRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['order'] = self.object.order
         return context
-
-    def test_func(self):
-        order_item = self.get_object()
-        return super().test_func() and self.request.user in order_item.order.customers.all()

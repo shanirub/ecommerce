@@ -15,9 +15,9 @@
     <p><strong>Order Date:</strong> {{ order_item.order.created_at }}</p>
     <p><strong>Status:</strong> {{ order_item.order.status }}</p>
 
-    <a href="{% url 'order_detail' order_item.order.id %}">View Full Order</a>
-    <a href="{% url 'orderitem_update' order_item.id %}">Edit Item</a>
-    <a href="{% url 'orderitem_delete' order_item.id %}">Delete Item</a>
-    <a href="{% url 'orderitem_list' %}">Back to Order Items</a>
+    <a href="{% url 'order-detail' order_item.order.id %}">View Full Order</a>
+    <a href="{% url 'orderitem-update' order_item.order.id order_item.id %}">Edit Item</a>
+    <a href="{% url 'orderitem-delete' order_item.order.id order_item.id %}">Delete Item</a>
+    <a href="{% url 'orderitem-list' order_item.order.id %}">Back to Order Items</a>
 </div>
 {% endblock %}

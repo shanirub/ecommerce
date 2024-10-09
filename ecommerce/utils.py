@@ -25,7 +25,6 @@ class SafeGetObjectMixin(View):
         try:
             if queryset is None:
                 queryset = self.get_queryset()
-            print(f"trying to safe get {queryset}")
             return super().get_object(queryset)
         except self.model.DoesNotExist:
             raise Http404(f"{self.model.__name__} does not exist")
