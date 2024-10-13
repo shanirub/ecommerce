@@ -20,6 +20,8 @@ logger = logging.getLogger('django')
 functionality testing
 
 testing CRUD operations using views
+
+403 is used instead of 404, as to not reveal a resource is missing
 '''
 
 class OrderViewTest(TestCase):
@@ -85,7 +87,7 @@ class OrderViewTest(TestCase):
         detail_url_non_existent = self.detail_url.replace(str(self.order.pk), str(NON_EXISTANT_ORDER_PK))
 
         response = self.client.get(detail_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_update_order_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -114,7 +116,7 @@ class OrderViewTest(TestCase):
         update_url_non_existent = self.update_url.replace(str(self.order.pk), str(NON_EXISTANT_ORDER_PK))
 
         response = self.client.post(update_url_non_existent, data={'is_paid': not self.order.is_paid})
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_order_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -136,10 +138,10 @@ class OrderViewTest(TestCase):
         delete_url_non_existent = self.delete_url.replace(str(self.order.pk), str(NON_EXISTANT_ORDER_PK))
 
         response = self.client.get(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
         response = self.client.post(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
 
 class OrderItemViewTest(TestCase):
@@ -201,7 +203,7 @@ class OrderItemViewTest(TestCase):
         detail_url_non_existent = self.detail_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.get(detail_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
 
     def test_update_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -228,7 +230,7 @@ class OrderItemViewTest(TestCase):
         update_url_non_existent = self.update_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.post(update_url_non_existent, data={'quantity': 2, 'price': 100})
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
 
     def test_delete_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -247,7 +249,7 @@ class OrderItemViewTest(TestCase):
         delete_url_non_existent = self.delete_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.get(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
 
         response = self.client.post(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions

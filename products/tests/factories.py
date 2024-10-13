@@ -3,6 +3,8 @@ from django.contrib.auth.models import Group
 from users.models import User
 from products.models import Product, Category
 
+from faker import Faker
+fake = Faker()
 
 class GroupFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -16,7 +18,7 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
 
     # Temporarily setting a placeholder for the username
-    username = factory.LazyAttribute(lambda obj: f'user_default')
+    username = factory.LazyAttribute(lambda obj: fake.user_name())
     password = factory.PostGenerationMethodCall('set_password', 'password')
 
     @factory.post_generation
@@ -27,7 +29,7 @@ class UserFactory(factory.django.DjangoModelFactory):
             self.groups.add(*extracted)
             # Use the name of the first group to update the username
             group_name = extracted[0].name if extracted else "default"
-            self.username = f'user_{group_name}'
+            self.username = self.username + f'user_{group_name}'
             self.save()
 
 

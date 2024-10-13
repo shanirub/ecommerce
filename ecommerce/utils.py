@@ -3,6 +3,27 @@ from django.http import Http404
 from django.views.generic import View
 from django.db import models
 
+
+def check_permission(testcase_object, url, user, expected_status, method='get', data=None):
+    """
+    helper method for permission view tests
+    :param testcase_object: TestCase object (that contains the tests)
+    :param url: for generating request
+    :param user: for generating request
+    :param expected_status: expected status code for response
+    :param method: request method 'post' or 'get' (default is 'get')
+    :param data: additional data to send with request
+    :return:
+    """
+    testcase_object.client.login(username=user.username, password='password')
+
+    if method == 'post':
+        response = testcase_object.client.post(url, data=data)
+    else:
+        response = testcase_object.client.get(url)
+
+    testcase_object.assertEqual(response.status_code, expected_status)
+
 def validate_raw_bool_value(value):
     """
     helper method to assure a value is True or False, and not just truthy or falsy

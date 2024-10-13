@@ -31,6 +31,7 @@ class OrderDetailView(GroupRequiredMixin, SafeGetObjectMixin, DetailView):
     model = Order
     template_name = 'order_detail.html'
     allowed_groups = ['staff', 'shift_manager', 'customers']
+    enforce_customer_owner = True
 
 
 class OrderCreateView(GroupRequiredMixin, CreateView):
@@ -58,9 +59,11 @@ class OrderUpdateView(GroupRequiredMixin, SafeGetObjectMixin, UpdateView):
     template_name = 'update_order.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
+    enforce_customer_owner = True
 
     def post(self, request, *args, **kwargs):
         raw_value = self.request.POST.get('is_paid')
+
         if validate_raw_bool_value(raw_value):
             return super().post(self, request, *args, **kwargs)
 
@@ -72,6 +75,7 @@ class OrderDeleteView(GroupRequiredMixin, SafeGetObjectMixin, DeleteView):
     template_name = 'delete_order.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
+    enforce_customer_owner = True
 
 
 ''' OrderItem views'''
@@ -82,6 +86,7 @@ class OrderItemCreateView(GroupRequiredMixin, CreateView):
     fields = ['product', 'quantity', 'price']
     template_name = 'create_order_item.html'
     success_url = reverse_lazy('order-list')
+    allowed_groups = ['customers', 'shift_manager']
 
     def form_valid(self, form):
         form.instance.order = self.get_order()  # Set the related order
@@ -102,6 +107,7 @@ class OrderItemUpdateView(SafeGetObjectMixin, GroupRequiredMixin, UpdateView):
     fields = ['quantity', 'price']
     template_name = 'update_order_item.html'
     success_url = reverse_lazy('order-list')
+    allowed_groups = ['customers', 'shift_manager']
 
     def test_func(self):
         # Check if the user is either the order item creator or a shift manager
@@ -113,6 +119,7 @@ class OrderItemDeleteView(SafeGetObjectMixin, GroupRequiredMixin, DeleteView):
     model = OrderItem
     template_name = 'delete_order_item.html'
     success_url = reverse_lazy('order-list')
+    allowed_groups = ['customers', 'shift_manager']
 
     def test_func(self):
         # Check if the user is either the order item creator or a shift manager
@@ -124,6 +131,7 @@ class OrderItemListView(GroupRequiredMixin, ListView):
     model = OrderItem
     template_name = 'order_item_list.html'
     context_object_name = 'order_items'
+    allowed_groups = ['customers', 'staff', 'shift_manager']
 
     def get_queryset(self):
         # Customers can only see their own order items, while Shift Managers can see all

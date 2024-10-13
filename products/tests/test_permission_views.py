@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.models import Group
 from products.tests.factories import UserFactory, GroupFactory, ProductFactory, CategoryFactory
 from ecommerce.management.commands.assign_permissions import Command
+from ecommerce.utils import check_permission
 
 import logging
 
@@ -48,16 +49,6 @@ class ProductViewPermissionTest(TestCase):
         self.delete_url = reverse('delete_product', args=[self.product.pk])
         self.detail_url = reverse('product_detail', args=[self.product.pk])
 
-    def check_permission(self, url, user, expected_status, method='get', data=None):
-        """Helper to check permissions for different users and methods."""
-        self.client.login(username=user.username, password='password')
-
-        if method == 'post':
-            response = self.client.post(url, data=data)
-        else:
-            response = self.client.get(url)
-
-        self.assertEqual(response.status_code, expected_status)
 
     def test_product_update_permissions(self):
         test_cases = [
@@ -77,7 +68,7 @@ class ProductViewPermissionTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product UPDATE for case: {case} \n")
-                self.check_permission(self.update_url, case['user'], case['expected_status'], method=case['method'], data=case.get('data'))
+                check_permission(self, self.update_url, case['user'], case['expected_status'], method=case['method'], data=case.get('data'))
 
     def test_product_create_permissions(self):
         test_cases = [
@@ -95,7 +86,7 @@ class ProductViewPermissionTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product CREATE for case: {case} \n")
-                self.check_permission(self.create_url, case['user'], case['expected_status'], method=case['method'], data=case.get('data'))
+                check_permission(self, self.create_url, case['user'], case['expected_status'], method=case['method'], data=case.get('data'))
 
     def test_product_delete_permissions(self):
         test_cases = [
@@ -121,7 +112,7 @@ class ProductViewPermissionTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product DELETE for case: {case} \n")
-                self.check_permission(self.delete_url, case['user'], case['expected_status'], method=case['method'],
+                check_permission(self, self.delete_url, case['user'], case['expected_status'], method=case['method'],
                                       data=case.get('data'))
 
     def test_product_detail_permissions(self):
@@ -135,7 +126,7 @@ class ProductViewPermissionTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product DETAIL for case: {case} \n")
-                self.check_permission(self.detail_url, case['user'], case['expected_status'], method=case['method'],
+                check_permission(self, self.detail_url, case['user'], case['expected_status'], method=case['method'],
                                       data=case.get('data'))
 
 
@@ -196,7 +187,7 @@ class CategoryViewPermissionsTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product CREATE for case: {case} \n")
-                self.check_permission(self.create_url, case['user'], case['expected_status'], method=case['method'],
+                check_permission(self, self.create_url, case['user'], case['expected_status'], method=case['method'],
                                       data=case.get('data'))
 
     def test_category_update_permissions(self):
@@ -220,7 +211,7 @@ class CategoryViewPermissionsTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product UPDATE for case: {case} \n")
-                self.check_permission(self.update_url, case['user'], case['expected_status'], method=case['method'],
+                check_permission(self, self.update_url, case['user'], case['expected_status'], method=case['method'],
                                       data=case.get('data'))
 
     def test_category_delete_permissions(self):
@@ -239,7 +230,7 @@ class CategoryViewPermissionsTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product DELETE for case: {case} \n")
-                self.check_permission(self.delete_url, case['user'], case['expected_status'], method=case['method'])
+                check_permission(self, self.delete_url, case['user'], case['expected_status'], method=case['method'])
 
     def test_category_detail_permissions(self):
         test_cases = [
@@ -252,4 +243,4 @@ class CategoryViewPermissionsTest(TestCase):
         for case in test_cases:
             with self.subTest(user=case['user'].username, method=case['method']):
                 logger.info(f"*** testing product DETAIL for case: {case} \n")
-                self.check_permission(self.detail_url, case['user'], case['expected_status'], method=case['method'])
+                check_permission(self, self.detail_url, case['user'], case['expected_status'], method=case['method'])
