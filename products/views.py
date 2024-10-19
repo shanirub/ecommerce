@@ -4,8 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Product, Category
-from ecommerce.utils import SafeGetObjectMixin
-from core.mixins import GroupRequiredMixin
+from core.mixins import GroupRequiredMixin, SafeGetObjectMixin
 
 
 class ProductListView(ListView):
@@ -61,9 +60,6 @@ class BaseProductView(GroupRequiredMixin):
     model = Product
     fields = ['name', 'description', 'price', 'stock', 'category']
     success_url = reverse_lazy('product_list')
-
-    def get_object(self, *args, **kwargs):
-        return self.model.objects.get(pk=self.kwargs['pk'])
 
 
 class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
@@ -141,9 +137,6 @@ class BaseCategoryView(GroupRequiredMixin):
     def test_func(self):
         user = self.request.user
         return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
-
-    def get_object(self, *args, **kwargs):
-        return self.model.objects.get(pk=self.kwargs['pk'])
 
 
 class CategoryDeleteView(SafeGetObjectMixin, BaseCategoryView, DeleteView):

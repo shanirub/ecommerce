@@ -36,20 +36,6 @@ def validate_raw_bool_value(value):
     """
     return value in ['True', 'False']
 
-class SafeGetObjectMixin(View):
-    def get_object(self, queryset=None):
-        """
-        Safe get_object() to assure a DoesNotExist exception will be translated to a 404 page
-        :param queryset:
-        :return:
-        """
-        try:
-            if queryset is None:
-                queryset = self.get_queryset()
-            return super().get_object(queryset)
-        except self.model.DoesNotExist:
-            raise Http404(f"{self.model.__name__} does not exist")
-
 
 def compare_model_instances(instance1, instance2):
     """

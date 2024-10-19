@@ -82,6 +82,7 @@ class OrderManager(models.Manager):
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
             return None
 
+
     def get_order_by_user(self, user):
         try:
             orders = self.filter(user=user)
