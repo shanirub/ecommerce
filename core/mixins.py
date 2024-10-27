@@ -2,67 +2,96 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 import logging
 
+from django.db.models import QuerySet
 from django.http import HttpResponseForbidden, Http404
+from django.template.context_processors import request
 from django.views import View
 from django.views.generic import CreateView
+from django.views.generic.detail import SingleObjectMixin
 
+from ecommerce.constants import EXCEPTION_LOG_LEVELS
 from orders.models import Order
 
 logger = logging.getLogger('django')
 
+class SafeGetObjectMixin:
+    """
+    Mixin to handle object retrieval with DoesNotExist exception handling.
+    """
+    def get_object(self, queryset=None):
+        try:
+            return super().get_object(queryset=queryset)
+        except self.model.DoesNotExist:
+            raise Http404("Object does not exist")
 
-# TODO !!!!!!!!!!! find a way to handle fetching object with two pks, like updating an order item
 
-class SafeGetObjectMixin(View):
-    def get_safe_object(self, queryset=None):
+from django.http import Http404
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class OwnershipRequiredMixin:
+    enforce_for_groups = ['customers']
+
+    def is_in_enforce_group(self, request):
         """
-        Safe get_object() to assure a DoesNotExist exception will be translated to a 404 page
-        :param queryset:
-        :return:
+        Checks if the user belongs to any of the groups for which ownership checks are enforced.
+        """
+        return any(group.name in self.enforce_for_groups for group in request.user.groups.all())
+
+    def get_owner_user(self, obj_or_queryset=None, **kwargs):
+        """
+        Determines the owner of an object or the first object in a queryset.
+        Uses the custom get_owner_user method from the object's manager if available.
         """
         try:
-            if queryset is None:
-                queryset = self.get_queryset()
-            return super().get_object(queryset)
-        except self.model.DoesNotExist:
-            raise Http404(f"{self.model.__name__} does not exist")
+            # Handle queryset by selecting the first object in it
+            obj = obj_or_queryset.first() if isinstance(obj_or_queryset, QuerySet) else obj_or_queryset
 
+            # Ensure obj is not None
+            if obj is None:
+                return None
 
-class OwnershipRequiredMixin(SafeGetObjectMixin):
-    """
-    mixin to check if user sending the request is the owner of the relevant object
-    """
-    owner_field = 'user'  # The field to check ownership against the request user
-    enforce_for_groups = ['customers']  # only enforce ownership for these groups, defaults to customers
-    model_to_check = None # the model to check ownership on
-    pk_url_kwarg = 'pk'  # Default URL keyword argument for the primary key
+            # Get the model's manager by referencing the class of the object
+            model_class = obj.__class__  # This gets the class of the instance
+            if hasattr(model_class, 'objects') and hasattr(model_class.objects, 'get_owner_user'):
+                return model_class.objects.get_owner_user(kwargs['pk'])
 
-    def get_owner_object(self, **kwargs):
-        """
-        Default behavior: fetch the object for the view's model, identified by the URL parameter 'pk'.
-        Can be overridden in the view for custom ownership checks.
-        """
-
-        # TODO !!!!!!!!!!! find a way to handle fetching object with two pks, like updating an order item
-        if self.model_to_check is None:
-            # default model to check is respective view model
-            return self.get_safe_object(**kwargs)
-
-        pk = self.kwargs.get(self.pk_url_kwarg)  # Get the primary key from URL kwargs
-        if pk is None:
-            raise ValueError(f"{self.pk_url_kwarg} must be provided in the URL parameters.")
-
-        # Use the model_to_check to get the safe object
-        queryset = self.model_to_check.objects.all()  # Get the queryset for the model
-        return self.get_safe_object(queryset=queryset.filter(pk=pk))  # Filter by primary key
-
+            # Fallback to default behavior
+            return getattr(obj, 'user', None)  # Return user attribute if it exists
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"Error retrieving owner: {str(e)}", exc_info=True)
+            return None
 
     def dispatch(self, request, *args, **kwargs):
-        if any(group.name in self.enforce_for_groups for group in request.user.groups.all()):
-            # user in group that demand ownership's check
-            owner_object = self.get_owner_object()
-            if getattr(owner_object, self.owner_field) != request.user:
-                raise PermissionDenied
+        """
+        Dispatch method to enforce ownership check for specific groups.
+        Raises Http404 if the user is not the owner.
+        """
+        if self.is_in_enforce_group(request):
+            try:
+                # Check for either a queryset or a single object
+                objects = self.get_queryset() if hasattr(self, 'get_queryset') else self.get_object()
+
+                # For multiple items, check if all items belong to the current user
+                if isinstance(objects, QuerySet):
+                    for obj in objects:
+                        if request.user != self.get_owner_user(obj, **kwargs):
+                            raise Http404("User does not own all items in this query.")
+                else:
+                    # For single object views, validate ownership of the single object
+                    if request.user != self.get_owner_user(objects, **kwargs):
+                        raise Http404("User does not own this item.")
+
+            except Http404 as e:
+                logger.warning(f"Ownership enforcement triggered Http404: {str(e)}")
+                raise
+            except Exception as e:
+                log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+                logger.log(log_level, f"Unexpected error in ownership check: {str(e)}", exc_info=True)
+                raise Http404("Ownership validation failed.")
 
         return super().dispatch(request, *args, **kwargs)
 

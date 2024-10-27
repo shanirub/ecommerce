@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView, CreateView, DeleteView
 from django.views.generic import ListView, DetailView
 from .models import Product, Category
-from core.mixins import GroupRequiredMixin, SafeGetObjectMixin
+from core.mixins import GroupRequiredMixin
 
 
 class ProductListView(ListView):
@@ -62,7 +62,7 @@ class BaseProductView(GroupRequiredMixin):
     success_url = reverse_lazy('product_list')
 
 
-class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
+class ProductDeleteView(BaseProductView, DeleteView):
     template_name = 'delete_product.html'
     allowed_groups = ['staff', 'shift_manager']
 
@@ -73,7 +73,7 @@ class ProductDeleteView(SafeGetObjectMixin, BaseProductView, DeleteView):
         return super().post(request, *args, **kwargs)
 
 
-class ProductDetailView(SafeGetObjectMixin, BaseProductView, DetailView):
+class ProductDetailView(BaseProductView, DetailView):
     template_name = 'product_detail.html'
     allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personnel']
 
@@ -139,7 +139,7 @@ class BaseCategoryView(GroupRequiredMixin):
         return user.groups.filter(name__in=self.allowed_groups).exists() or user.is_superuser
 
 
-class CategoryDeleteView(SafeGetObjectMixin, BaseCategoryView, DeleteView):
+class CategoryDeleteView(BaseCategoryView, DeleteView):
     template_name = 'delete_category.html'
     allowed_groups = ['staff', 'shift_manager']
 
@@ -150,7 +150,7 @@ class CategoryDeleteView(SafeGetObjectMixin, BaseCategoryView, DeleteView):
         return super().post(request, *args, **kwargs)
 
 
-class CategoryDetailView(SafeGetObjectMixin, BaseCategoryView, DetailView):
+class CategoryDetailView(BaseCategoryView, DetailView):
     template_name = 'category_detail.html'
     allowed_groups = ['staff', 'shift_manager', 'customers', 'stock_personnel']
 

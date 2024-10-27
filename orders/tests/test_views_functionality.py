@@ -165,10 +165,10 @@ class OrderItemViewTest(TestCase):
 
         # URLs for testing
         self.create_url = reverse('orderitem-create', args=[self.order.pk])
-        self.update_url = reverse('orderitem-update', args=[self.order.pk, self.order_item.pk])
-        self.detail_url = reverse('orderitem-detail', args=[self.order.pk, self.order_item.pk])
-        self.delete_url = reverse('orderitem-delete', args=[self.order.pk, self.order_item.pk])
-        self.list_url = reverse('orderitem-list', args=[self.order.pk])
+        self.update_url = reverse('orderitem-update', args=[self.order_item.pk])
+        self.detail_url = reverse('orderitem-detail', args=[self.order_item.pk])
+        self.delete_url = reverse('orderitem-delete', args=[self.order_item.pk])
+        self.list_url = reverse('orderitem-list')
 
     def test_create_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -203,7 +203,7 @@ class OrderItemViewTest(TestCase):
         detail_url_non_existent = self.detail_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.get(detail_url_non_existent)
-        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
+        self.assertEqual(response.status_code, 403)
 
     def test_update_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -230,7 +230,7 @@ class OrderItemViewTest(TestCase):
         update_url_non_existent = self.update_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.post(update_url_non_existent, data={'quantity': 2, 'price': 100})
-        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
+        self.assertEqual(response.status_code, 403)
 
     def test_delete_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -249,7 +249,7 @@ class OrderItemViewTest(TestCase):
         delete_url_non_existent = self.delete_url.replace(str(self.order_item.pk), str(NON_EXISTENT_ORDER_ITEM_PK))
 
         response = self.client.get(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
+        self.assertEqual(response.status_code, 403)
 
         response = self.client.post(delete_url_non_existent)
-        self.assertEqual(response.status_code, 404) # TODO replace with 403, when done implementing permissions
+        self.assertEqual(response.status_code, 403)

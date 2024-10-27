@@ -14,21 +14,19 @@ from .views import (
 
 urlpatterns = [
     # Order URLs
-    path('', OrderListView.as_view(), name='order-list'),  # List of orders
-    path('create/', OrderCreateView.as_view(), name='order-create'),  # Create a new order
-    path('<int:pk>/', OrderDetailView.as_view(), name='order-detail'),  # View details of a specific order
-    path('<int:pk>/update/', OrderUpdateView.as_view(), name='order-update'),  # Update an existing order
-    path('<int:pk>/delete/', OrderDeleteView.as_view(), name='order-delete'),  # Delete an order
+    path('orders/', OrderListView.as_view(), name='order-list'),
+    path('orders/create/', OrderCreateView.as_view(), name='order-create'),
+    path('orders/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
+    path('orders/<int:pk>/update/', OrderUpdateView.as_view(), name='order-update'),
+    path('orders/<int:pk>/delete/', OrderDeleteView.as_view(), name='order-delete'),
+
+    path('orders/<int:pk>/order-items/create/', OrderItemCreateView.as_view(), name='orderitem-create'),
 
     # Order Item URLs
-    path('<int:order_pk>/items/', OrderItemListView.as_view(), name='orderitem-list'),
-    # List of items in a specific order
-    path('<int:order_pk>/items/create/', OrderItemCreateView.as_view(), name='orderitem-create'),
-    # Create a new order item
-    path('<int:order_pk>/items/<int:pk>/', OrderItemDetailView.as_view(), name='orderitem-detail'),
-    # View details of a specific order item
-    path('<int:order_pk>/items/<int:pk>/update/', OrderItemUpdateView.as_view(), name='orderitem-update'),
-    # Update an existing order item
-    path('<int:order_pk>/items/<int:pk>/delete/', OrderItemDeleteView.as_view(), name='orderitem-delete'),
-    # Delete an order item
+    path('order-items/', OrderItemListView.as_view(), name='orderitem-list'),
+    # path('order-items/create/', OrderItemCreateView.as_view(), name='orderitem-create'),
+    path('order-items/<int:pk>/', OrderItemDetailView.as_view(), name='orderitem-detail'),
+    path('order-items/<int:pk>/update/', OrderItemUpdateView.as_view(), name='orderitem-update'),
+    path('order-items/<int:pk>/delete/', OrderItemDeleteView.as_view(), name='orderitem-delete'),
 ]
+

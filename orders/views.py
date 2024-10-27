@@ -1,10 +1,8 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.exceptions import ValidationError
-from .models import Order, OrderItem
-from core.mixins import GroupRequiredMixin, OwnershipRequiredMixin, SafeGetObjectMixin
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from .models import Order, OrderItem
+from core.mixins import GroupRequiredMixin, OwnershipRequiredMixin
 from ecommerce.utils import validate_raw_bool_value
 
 def is_shift_manager(user):
@@ -20,9 +18,9 @@ class OrderListView(GroupRequiredMixin, ListView):
 
     def get_queryset(self):
         if is_shift_manager(self.request.user):
-            # shift manager have access to all orders
+            # Shift managers have access to all orders
             return Order.objects.all()
-        # customers have access only to their orders
+        # Customers have access only to their orders
         return Order.objects.filter(user=self.request.user)
 
 
@@ -40,10 +38,9 @@ class OrderCreateView(GroupRequiredMixin, CreateView):
     allowed_groups = ['customers', 'shift_manager']
 
     def post(self, request, *args, **kwargs):
-        raw_value = self.request.POST.get('is_paid')
+        raw_value = request.POST.get('is_paid')
         if validate_raw_bool_value(raw_value):
-            return super().post(self, request, *args, **kwargs)
-
+            return super().post(request, *args, **kwargs)
         raise ValidationError("is_paid field must be True or False")
 
     def form_valid(self, form):
@@ -59,11 +56,9 @@ class OrderUpdateView(GroupRequiredMixin, OwnershipRequiredMixin, UpdateView):
     allowed_groups = ['customers', 'shift_manager']
 
     def post(self, request, *args, **kwargs):
-        raw_value = self.request.POST.get('is_paid')
-
+        raw_value = request.POST.get('is_paid')
         if validate_raw_bool_value(raw_value):
-            return super().post(self, request, *args, **kwargs)
-
+            return super().post(request, *args, **kwargs)
         raise ValidationError("is_paid field must be True or False")
 
 
@@ -82,11 +77,10 @@ class OrderItemCreateView(GroupRequiredMixin, OwnershipRequiredMixin, CreateView
     template_name = 'create_order_item.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
-    model_to_check = Order
-    pk_url_kwarg = 'order_pk'
 
     def form_valid(self, form):
-        form.instance.order = self.get_owner_object()
+        form.instance.user = self.request.user
+        form.instance.order_id = self.kwargs['pk']  # Use pk from the URL
         return super().form_valid(form)
 
 
@@ -96,9 +90,6 @@ class OrderItemUpdateView(GroupRequiredMixin, OwnershipRequiredMixin, UpdateView
     template_name = 'update_order_item.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
-    model_to_check = Order
-    pk_url_kwarg = 'order_pk'
-
 
 
 class OrderItemDeleteView(GroupRequiredMixin, OwnershipRequiredMixin, DeleteView):
@@ -106,10 +97,6 @@ class OrderItemDeleteView(GroupRequiredMixin, OwnershipRequiredMixin, DeleteView
     template_name = 'delete_order_item.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
-    model_to_check = Order
-    pk_url_kwarg = 'order_pk'
-
-
 
 
 class OrderItemListView(GroupRequiredMixin, OwnershipRequiredMixin, ListView):
@@ -117,22 +104,15 @@ class OrderItemListView(GroupRequiredMixin, OwnershipRequiredMixin, ListView):
     template_name = 'order_item_list.html'
     context_object_name = 'order_items'
     allowed_groups = ['customers', 'staff', 'shift_manager']
-    model_to_check = Order
-    pk_url_kwarg = 'order_pk'
 
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order_items'] = self.get_queryset()
+        return context
 
 
 class OrderItemDetailView(GroupRequiredMixin, OwnershipRequiredMixin, DetailView):
     model = OrderItem
     template_name = 'order_item_detail.html'
-    context_object_name = 'order_item'
     allowed_groups = ['staff', 'shift_manager', 'customers']
-    model_to_check = Order
-    pk_url_kwarg = 'order_pk'
 
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['order'] = self.object.order
-        return context
