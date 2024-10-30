@@ -47,7 +47,7 @@ class OrderViewTest(TestCase):
         self.create_url = reverse('order-create')
         self.delete_url = reverse('order-delete', args=[self.order.pk])
         self.detail_url = reverse('order-detail', args=[self.order.pk])
-        self.list_url = reverse('order-list')
+        # self.list_url = reverse('order-list') # TODO: do i need this?
 
     def test_create_order_successful(self):
         self.client.login(username=self.customer_user.username, password='password')
@@ -168,7 +168,7 @@ class OrderItemViewTest(TestCase):
         self.update_url = reverse('orderitem-update', args=[self.order_item.pk])
         self.detail_url = reverse('orderitem-detail', args=[self.order_item.pk])
         self.delete_url = reverse('orderitem-delete', args=[self.order_item.pk])
-        self.list_url = reverse('orderitem-list')
+        # self.list_url = reverse('orderitem-list')
 
     def test_create_order_item_successful(self):
         self.client.login(username=self.customer_user.username, password='password')

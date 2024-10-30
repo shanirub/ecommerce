@@ -23,6 +23,7 @@
             {% endfor %}
         </ul>
 
+        <a href="{% url 'orderitem-create' order.pk %}">Add New Order Item</a>
         <a href="{% url 'order-update' order.id %}" class="btn">Edit Order</a>
         <a href="{% url 'order-delete' order.id %}" class="btn">Delete Order</a>
         <a href="{% url 'order-list' %}" class="btn">Back to Orders</a>

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
@@ -78,10 +79,20 @@ class OrderItemCreateView(GroupRequiredMixin, OwnershipRequiredMixin, CreateView
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
 
+    def dispatch(self, request, *args, **kwargs):
+        # Retrieve the order based on the order_pk passed in the URL
+        self.order = get_object_or_404(Order, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.order_id = self.kwargs['pk']  # Use pk from the URL
+        # Associate the order item with the order instance before saving
+        form.instance.order = self.order
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order'] = self.order  # Pass the order to the template if needed
+        return context
 
 
 class OrderItemUpdateView(GroupRequiredMixin, OwnershipRequiredMixin, UpdateView):
@@ -99,16 +110,18 @@ class OrderItemDeleteView(GroupRequiredMixin, OwnershipRequiredMixin, DeleteView
     allowed_groups = ['customers', 'shift_manager']
 
 
-class OrderItemListView(GroupRequiredMixin, OwnershipRequiredMixin, ListView):
-    model = OrderItem
-    template_name = 'order_item_list.html'
-    context_object_name = 'order_items'
-    allowed_groups = ['customers', 'staff', 'shift_manager']
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['order_items'] = self.get_queryset()
-        return context
+# TODO: is this actually needed?
+# TODO: why should a user see all its ordered items without referencing an order?
+# class OrderItemListView(GroupRequiredMixin, OwnershipRequiredMixin, ListView):
+#     model = OrderItem
+#     template_name = 'order_item_list.html'
+#     context_object_name = 'order_items'
+#     allowed_groups = ['customers', 'staff', 'shift_manager']
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['order_items'] = self.get_queryset()
+#         return context
 
 
 class OrderItemDetailView(GroupRequiredMixin, OwnershipRequiredMixin, DetailView):

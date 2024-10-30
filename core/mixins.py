@@ -47,7 +47,8 @@ class OwnershipRequiredMixin:
         """
         try:
             # Handle queryset by selecting the first object in it
-            obj = obj_or_queryset.first() if isinstance(obj_or_queryset, QuerySet) else obj_or_queryset
+            # obj = obj_or_queryset.first() if isinstance(obj_or_queryset, QuerySet) else obj_or_queryset
+            obj = obj_or_queryset
 
             # Ensure obj is not None
             if obj is None:
@@ -72,10 +73,14 @@ class OwnershipRequiredMixin:
         """
         if self.is_in_enforce_group(request):
             try:
-                # Check for either a queryset or a single object
-                objects = self.get_queryset() if hasattr(self, 'get_queryset') else self.get_object()
+                obj = self.get_object()
+                if request.user != self.get_owner_user(obj, **kwargs):
+                    raise Http404("User does not own all items in this query.")
+
+                #import ipdb; ipdb.set_trace()
 
                 # For multiple items, check if all items belong to the current user
+                '''
                 if isinstance(objects, QuerySet):
                     for obj in objects:
                         if request.user != self.get_owner_user(obj, **kwargs):
@@ -84,6 +89,8 @@ class OwnershipRequiredMixin:
                     # For single object views, validate ownership of the single object
                     if request.user != self.get_owner_user(objects, **kwargs):
                         raise Http404("User does not own this item.")
+                '''
+
 
             except Http404 as e:
                 logger.warning(f"Ownership enforcement triggered Http404: {str(e)}")
