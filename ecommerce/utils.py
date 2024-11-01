@@ -2,6 +2,8 @@ from django.db import models
 from django.http import Http404
 from django.views.generic import View
 from django.db import models
+import logging
+logger = logging.getLogger('django')
 
 
 def check_permission(testcase_object, url, user, expected_status, method='get', data=None):
@@ -15,7 +17,10 @@ def check_permission(testcase_object, url, user, expected_status, method='get', 
     :param data: additional data to send with request
     :return:
     """
+    all_params = locals()
     testcase_object.client.login(username=user.username, password='password')
+
+    logger.info(all_params)
 
     if method == 'post':
         response = testcase_object.client.post(url, data=data)

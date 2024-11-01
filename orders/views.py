@@ -79,19 +79,23 @@ class OrderItemCreateView(GroupRequiredMixin, OwnershipRequiredMixin, CreateView
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
 
-    def dispatch(self, request, *args, **kwargs):
-        # Retrieve the order based on the order_pk passed in the URL
-        self.order = get_object_or_404(Order, pk=kwargs['pk'])
-        return super().dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     # Retrieve the order based on the order_pk passed in the URL
+    #     self.order = self.get_object()
+    #     return super().dispatch(request, *args, **kwargs)
+
+    def get_order(self):
+        obj = self.get_object()
+        return obj
 
     def form_valid(self, form):
         # Associate the order item with the order instance before saving
-        form.instance.order = self.order
+        form.instance.order = self.get_order()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['order'] = self.order  # Pass the order to the template if needed
+        context['order'] = self.get_order()  # Pass the order to the template if needed
         return context
 
 
