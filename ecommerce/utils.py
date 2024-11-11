@@ -1,21 +1,48 @@
-from django.db import models
+from django.db import models, transaction
 from django.http import Http404
 from django.views.generic import View
+from django.db import models
+import logging
+logger = logging.getLogger('django')
 
 
-class SafeGetObjectMixin(View):
-    def get_object(self, queryset=None):
-        """
-        Safe get_object() to assure a DoesNotExist exception will be translated to a 404 page
-        :param queryset:
-        :return:
-        """
-        try:
-            if queryset is None:
-                queryset = self.get_queryset()
-            return super().get_object(queryset)
-        except self.model.DoesNotExist:
-            raise Http404(f"{self.model.__name__} does not exist")
+def check_permission(testcase_object, url, user, expected_status, method='get', data=None):
+    """
+    helper method for permission view tests
+    :param testcase_object: TestCase object (that contains the tests)
+    :param url: for generating request
+    :param user: for generating request
+    :param expected_status: expected status code for response
+    :param method: request method 'post' or 'get' (default is 'get')
+    :param data: additional data to send with request
+    :return:
+    """
+    all_params = locals()
+    testcase_object.client.logout()  # Ensure no user is logged in
+    testcase_object.client.force_login(user)  # Log in with the intended user
+
+    logger.info(all_params)
+    current_user_id = testcase_object.client.session.get('_auth_user_id')
+    logger.debug(f"User in session before test request: {current_user_id}")
+
+    if method == 'post':
+        response = testcase_object.client.post(url, data=data)
+    else:
+        response = testcase_object.client.get(url)
+
+    testcase_object.assertEqual(response.status_code, expected_status)
+
+def validate_raw_bool_value(value):
+    """
+    helper method to assure a value is True or False, and not just truthy or falsy
+    used in various views to validate bool values
+    (in model level, raw value is already processed by django as a truthy / falsy.
+        for example: int(15) will be processed as False)
+
+    :param value: raw value (given as str in view)
+    :return: True if value is indeed a bool, False otherwise
+    """
+    return value in ['True', 'False']
 
 
 def compare_model_instances(instance1, instance2):

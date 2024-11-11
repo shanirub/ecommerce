@@ -27,6 +27,7 @@ urlpatterns = [
     path('users/', include('users.urls')),  # Include your app's URLs
     path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
     path('products/', include('products.urls')),
+    path('orders/', include('orders.urls')),
     path('', HomePageView.as_view(), name='home')
 
 ]

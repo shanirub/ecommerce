@@ -21,6 +21,8 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         try:
             self.full_clean()
+            if not self.pk:  # Check if it's a new instance
+                logger.debug(f'Creating Order: {self}')
             super().save(*args, **kwargs)
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
@@ -45,6 +47,8 @@ class OrderItem(models.Model):
     def save(self, *args, **kwargs):
         try:
             self.full_clean()
+            if not self.pk:  # Check if it's a new instance
+                logger.debug(f'Creating OrderItem: {self}')
             super().save(*args, **kwargs)
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)

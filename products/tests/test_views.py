@@ -1,115 +1,127 @@
 from django.test import TestCase
 from django.urls import reverse
+from products.models import Product, Category
+from django.contrib.auth.models import Group
+
+from ecommerce.management.commands.assign_permissions import Command
+from products.models import Product, Category
 from users.models import User
-from .models import Product, Category
+import factory
+from products.tests.factories import UserFactory, GroupFactory, ProductFactory, CategoryFactory
 
 
 class ProductViewTests(TestCase):
+    """
+    test views functionality
 
-    def get_product_data(self, product=None, **overrides):
-        # TODO: move to separate utils file?
-        data = {
-            'name': product.name if product else 'Default Name',
-            'description': product.description if product else 'Default Description',
-            'price': product.price if product else 10.0,
-            'stock': product.stock if product else 100,
-            'category': product.category.id if product else self.category.id,
-        }
-        data.update(overrides)
-        return data
+    permissions are tested in test_permission_views.py
+    here user of shirt_manager group is being used: has all permissions
+    """
+
+    def get_product_data(self, **overrides):
+        """
+        create a dict of Product attributes using factory
+        Product is not saved in db
+
+        # TODO used for create/update views scenarios.
+        # TODO check if needed, or factory boy features are enough
+
+        :param overrides: dict of attributes and values to update
+        :return: dict of Product attributes
+        """
+        product_data = factory.build(dict, FACTORY_CLASS=ProductFactory)
+        product_data.update(overrides)
+        return product_data
 
     def setUp(self):
-        self.admin_user = User.objects.create_superuser(username='admin', password='admin', email='admin@example.com')
-        self.category = Category.objects.create_category(name='cat1', description='cat example')
-        self.product = Product.objects.create(
-            name='Test Product',
-            description='Test Description',
-            price=10.0,
-            stock=100,
-            category=self.category
-        )
+        self.category = CategoryFactory()
+        self.product = ProductFactory(category=self.category)
+        # Set up permissions using assign_permissions script
+        Command().handle()
+
+        # Create product and category
+        self.category = CategoryFactory(name='cat', description='Sample category')
+        self.product = ProductFactory(category=self.category)
+
+        # user of shift managers group - has all permissions
+        shift_manager_group = Group.objects.get(name='shift_manager')
+        self.shift_manager_user = UserFactory(groups=[shift_manager_group])
+
 
     def test_update_product_view(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('update_product', kwargs={'pk': self.product.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'update_product.html')
 
     def test_create_product_view(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('create_product'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'create_product.html')
 
     def test_create_product_success(self):
-        self.client.login(username='admin', password='admin')
-        product_data = self.get_product_data(self.product, name='snowflake product')
+        self.client.login(username=self.shift_manager_user.username, password='password')
+        product_data = self.get_product_data(name='snowflake product', category=self.category.pk)
         response = self.client.post(reverse('create_product'), product_data)
         self.assertEqual(response.status_code, 302)  # Check if redirected
         self.assertRedirects(response, reverse('product_list'))
-        self.assertTrue(Product.objects.filter(name=self.product.name).exists())  # Check if the product was created
+        self.assertTrue(Product.objects.filter(name='snowflake product').exists())  # Check if product was created
 
     def test_create_product_invalid_data(self):
-        self.client.login(username='admin', password='admin')
-        product_data = self.get_product_data(self.product, name='', price='invalid_price', description='something else')
+        self.client.login(username=self.shift_manager_user.username, password='password')
+
+        # create invalid dict for product creation
+        product_data = ProductFactory.build().__dict__
+        product_data.update({
+            'name': '',  # Invalid: name is required
+            'price': 'invalid_price',  # Invalid: price should be a number
+        })
+        del product_data['id']
+        del product_data['category_id']  # Invalid: category is required
+
         response = self.client.post(reverse('create_product'), product_data)
 
-        # If redirected, follow the redirect
-        if response.status_code == 302:
-            response = self.client.get(response.url)
-
-        # Check if form is in the context
+        self.assertEqual(response.status_code, 200)  # Ensure no redirect
         self.assertIn('form', response.context)
+
         form = response.context['form']
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
         self.assertIn('price', form.errors)
+        self.assertIn('category', form.errors)
 
         expected_errors = {
             'name': ['This field is required.'],
-            'price': ['Enter a number.']
+            'price': ['Enter a number.'],
+            'price': ['Enter a number.'],
+            'category': ['This field is required.']
         }
         self.assertEqual(form.errors, expected_errors)
 
         # Ensure no product was created with invalid data
-        self.assertFalse(Product.objects.filter(name='').exists())
-        self.assertFalse(Product.objects.filter(description='something else').exists())
+        self.assertFalse(Product.objects.filter(description=product_data['description']).exists())
 
     def test_update_product_invalid_data(self):
-        self.client.login(username='admin', password='admin')
-        product_data = self.get_product_data(self.product, description='', price='invalid_price',
-                                             category='New Category')
+        self.client.login(username=self.shift_manager_user.username, password='password')
+        product_data = self.get_product_data(description='', price='invalid_price')
         response = self.client.post(reverse('update_product', args=[self.product.pk]), product_data)
 
-        # TODO: should never redirect? should stay on page. redirect only on success
-        # If redirected, follow the redirect
-        if response.status_code == 302:
-            response = self.client.get(response.url)
-
-        self.assertEqual(response.status_code, 200)  # Check that it did not redirect
-
-        # Check if form is in the context
+        self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
         form = response.context['form']
-
-        self.assertTrue(form.errors)
-
-        form = response.context['form']
         self.assertFalse(form.is_valid())
-        self.assertIn('category', form.errors)
         self.assertIn('price', form.errors)
 
     def test_update_non_existing_product(self):
         NON_EXISTING_PRODUCT_PK = 12345
-        self.client.login(username='admin', password='admin')
-        product_data = self.get_product_data(self.product, description='', price='invalid_price',
-                                             category='New Category')
+        self.client.login(username=self.shift_manager_user.username, password='password')
+        product_data = self.get_product_data()
         response = self.client.post(reverse('update_product', args=[NON_EXISTING_PRODUCT_PK]), product_data)
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 403)
 
     def test_read_existing_product(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('product_detail', args=[self.product.pk]))
 
         self.assertEqual(response.status_code, 200)
@@ -120,16 +132,13 @@ class ProductViewTests(TestCase):
 
     def test_read_not_existing_product(self):
         NON_EXISTING_PRODUCT_PK = 12345
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
+        self.assertEqual(response.status_code, 403)
 
-
-        with self.assertRaises(Product.DoesNotExist):
-            Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
 
     def test_delete_existing_product(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
 
         # GET request to load delete confirmation page
         response = self.client.get(reverse('delete_product', args=[self.product.pk]))
@@ -146,69 +155,62 @@ class ProductViewTests(TestCase):
 
     def test_delete_non_existing_product(self):
         NON_EXISTING_PRODUCT_PK = 12345
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
+        response = self.client.get(reverse('delete_product', args=[NON_EXISTING_PRODUCT_PK]))
+        self.assertEqual(response.status_code, 403)
         response = self.client.get(reverse('product_detail', args=[NON_EXISTING_PRODUCT_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 403)
 
         with self.assertRaises(Product.DoesNotExist):
             Product.objects.get(pk=NON_EXISTING_PRODUCT_PK)
 
 
 class CategoryViewTests(TestCase):
+
     def setUp(self):
-        self.admin_user = User.objects.create_superuser(username='admin', password='admin', email='admin@example.com')
-        self.category = Category.objects.create_category(name='cat1', description='cat example')
+        self.category = CategoryFactory()
+        # Set up permissions using assign_permissions script
+        Command().handle()
+
+        self.category = CategoryFactory(name='cat', description='Sample category')
+
+        # user of shift managers group - has all permissions
+        shift_manager_group = Group.objects.get(name='shift_manager')
+        self.shift_manager_user = UserFactory(groups=[shift_manager_group])
 
     def test_create_category_view(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('create_category'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'create_category.html')
 
     def test_create_category_success(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('create_category'), {'name': 'new category', 'description': 'description'})
-
-        self.assertEqual(response.status_code, 302)  # Check if redirected
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('category_list'))
-        self.assertTrue(Category.objects.filter(name='new category').exists())  # Check if the product was created
-
-    def test_update_category_view(self):
-        self.client.login(username='admin', password='admin')
-        response = self.client.get(reverse('update_category', kwargs={'pk': self.category.pk}))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'update_category.html')
+        self.assertTrue(Category.objects.filter(name='new category').exists())
 
     def test_create_invalid_category(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('create_category'), {'name': '', 'description': 'description'})
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'create_category.html')
-
-        # Check if form is in the context
         self.assertIn('form', response.context)
         form = response.context['form']
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
 
-        expected_errors = {
-            'name': ['This field is required.'],
-        }
+        expected_errors = {'name': ['This field is required.']}
         self.assertEqual(form.errors, expected_errors)
-
-        # Ensure no product was created with invalid data
-        self.assertFalse(Category.objects.filter(name='').exists())
         self.assertFalse(Category.objects.filter(description='description').exists())
 
     def test_update_non_existing_category(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('update_category', kwargs={'pk': '010101'}))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 403)
 
     def test_read_existing_category(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('category_detail', args=[self.category.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'category_detail.html')
@@ -216,16 +218,15 @@ class CategoryViewTests(TestCase):
 
     def test_read_non_existing_category(self):
         NON_EXISTING_CATEGORY_PK = 12345
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.get(reverse('category_detail', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
-
+        self.assertEqual(response.status_code, 403)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)
 
     def test_delete_existing_category(self):
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
 
         # GET request to load delete confirmation page
         response = self.client.get(reverse('delete_category', args=[self.category.pk]))
@@ -242,9 +243,9 @@ class CategoryViewTests(TestCase):
 
     def test_delete_non_existing_category(self):
         NON_EXISTING_CATEGORY_PK = 12345
-        self.client.login(username='admin', password='admin')
+        self.client.login(username=self.shift_manager_user.username, password='password')
         response = self.client.post(reverse('delete_category', args=[NON_EXISTING_CATEGORY_PK]))
-        self.assertIn(response.status_code, [404, 500])  # TODO: change after adding permissions
+        self.assertEqual(response.status_code, 403)
 
         with self.assertRaises(Category.DoesNotExist):
             Category.objects.get(pk=NON_EXISTING_CATEGORY_PK)

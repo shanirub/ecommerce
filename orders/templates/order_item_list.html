@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Items{% endblock %}
+
+{% block content %}
+<h1>Order Items</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>
+                    <a href="{% url 'orderitem-update' item.id %}">Edit</a>
+                    <a href="{% url 'orderitem-delete' item.id %}">Delete</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">No order items found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'orderitem-create' order.id %}" class="btn">Add Order Item</a>
+{% endblock %}

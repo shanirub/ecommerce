@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Finds Market - Order Details</title>
+    <style>
+        {{ block.super }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order #{{ order.id }}</h1>
+        <p><strong>Date:</strong> {{ order.created_at }}</p>
+        <p><strong>Paid:</strong> {{ order.is_paid|yesno:"Yes,No" }}</p>
+
+        <h2>Items</h2>
+        <ul>
+            {% for item in order.orderitem_set.all %}
+            <li>{{ item.product.name }} - {{ item.quantity }}</li>
+            {% empty %}
+            <p>No items in this order.</p>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'orderitem-create' order.pk %}">Add New Order Item</a>
+        <a href="{% url 'order-update' order.id %}" class="btn">Edit Order</a>
+        <a href="{% url 'order-delete' order.id %}" class="btn">Delete Order</a>
+        <a href="{% url 'order-list' %}" class="btn">Back to Orders</a>
+    </div>
+</body>
+</html>

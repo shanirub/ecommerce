@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users',
     'products',
     'orders',
+    'ecommerce',
     'core',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -113,6 +114,7 @@ else:
         'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
+
 
 if 'DEBUG' not in os.environ:
     DEBUG = False
@@ -191,10 +193,12 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'file'],
+            'propagate': True,
+        },
     },
 }
-
-
-
 
 

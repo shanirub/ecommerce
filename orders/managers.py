@@ -82,6 +82,7 @@ class OrderManager(models.Manager):
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
             return None
 
+
     def get_order_by_user(self, user):
         try:
             orders = self.filter(user=user)
@@ -208,6 +209,39 @@ class OrderItemManager(models.Manager):
         except self.model.DoesNotExist:
             logger.error(f"no items found for order {order}")
             return None
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            return None
+
+
+
+
+    # TODO !!! get model object. self refers to Manager!!!
+
+    def get_owner_user(self, order_item_id):
+        """
+        :return:    owner of the order that contains this order item
+                    None if something went wrong
+        """
+        try:
+            order_item = self.get_order_item(order_item_id)
+            order = order_item.order
+            owner = order.user
+            return owner
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            return None
+
+    def get_containing_order(self, order_item_id):
+        """
+        :return: order containing this order item
+        """
+        try:
+            order_item = self.get_order_item(order_item_id)
+            order = order_item.order
+            return order
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)

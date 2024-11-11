@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Order Item Details</h1>
+
+<div class="order-item-details">
+    <h2>Item Information</h2>
+    <p><strong>Product Name:</strong> {{ order_item.product.name }}</p>
+    <p><strong>Quantity:</strong> {{ order_item.quantity }}</p>
+    <p><strong>Price:</strong> ${{ order_item.price }}</p>
+    <p><strong>Total:</strong> ${{ order_item.total }}</p>
+
+    <h2>Order Information</h2>
+    <p><strong>Order ID:</strong> {{ order_item.order.id }}</p>
+    <p><strong>Order Date:</strong> {{ order_item.order.created_at }}</p>
+    <p><strong>Status:</strong> {{ order_item.order.status }}</p>
+
+    <a href="{% url 'order-detail' orderitem.order.pk %}">View Full Order</a>
+    <a href="{% url 'orderitem-update' orderitem.pk %}">Edit Item</a>
+    <a href="{% url 'orderitem-delete' orderitem.pk %}">Delete Item</a>
+</div>
+{% endblock %}
