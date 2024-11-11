@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy
+from products.models import Product
 from .models import Order, OrderItem
 from core.mixins import GroupRequiredMixin, OwnershipRequiredMixin
 from ecommerce.utils import validate_raw_bool_value
@@ -72,21 +73,26 @@ class OrderDeleteView(GroupRequiredMixin, OwnershipRequiredMixin, DeleteView):
 
 ''' OrderItem views'''
 
-class OrderItemCreateView(GroupRequiredMixin, OwnershipRequiredMixin, CreateView):
+class OrderItemCreateView(OwnershipRequiredMixin, GroupRequiredMixin, CreateView):
     model = OrderItem
     fields = ['product', 'quantity', 'price']
     template_name = 'create_order_item.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     # Retrieve the order based on the order_pk passed in the URL
-    #     self.order = self.get_object()
-    #     return super().dispatch(request, *args, **kwargs)
-
     def get_order(self):
-        obj = self.get_object()
+        obj = Order.objects.get_order(self.kwargs['pk'])
         return obj
+
+    def get_object_owner(self, **kwargs):
+        """
+        special case: check ownership not on associated model
+            (check ownership on Order, since OrderItem was not created yet)
+        override OwnershipRequiredMixin method
+        """
+        obj = self.get_order()
+        obj_owner = obj.user
+        return obj_owner
 
     def form_valid(self, form):
         # Associate the order item with the order instance before saving
@@ -96,6 +102,10 @@ class OrderItemCreateView(GroupRequiredMixin, OwnershipRequiredMixin, CreateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['order'] = self.get_order()  # Pass the order to the template if needed
+        context['products'] = Product.objects.all()
+        context['success'] = None
+        context['error'] = None
+
         return context
 
 
@@ -112,20 +122,6 @@ class OrderItemDeleteView(GroupRequiredMixin, OwnershipRequiredMixin, DeleteView
     template_name = 'delete_order_item.html'
     success_url = reverse_lazy('order-list')
     allowed_groups = ['customers', 'shift_manager']
-
-
-# TODO: is this actually needed?
-# TODO: why should a user see all its ordered items without referencing an order?
-# class OrderItemListView(GroupRequiredMixin, OwnershipRequiredMixin, ListView):
-#     model = OrderItem
-#     template_name = 'order_item_list.html'
-#     context_object_name = 'order_items'
-#     allowed_groups = ['customers', 'staff', 'shift_manager']
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['order_items'] = self.get_queryset()
-#         return context
 
 
 class OrderItemDetailView(GroupRequiredMixin, OwnershipRequiredMixin, DetailView):

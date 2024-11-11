@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.http import Http404
 from django.views.generic import View
 from django.db import models
@@ -18,9 +18,12 @@ def check_permission(testcase_object, url, user, expected_status, method='get', 
     :return:
     """
     all_params = locals()
-    testcase_object.client.login(username=user.username, password='password')
+    testcase_object.client.logout()  # Ensure no user is logged in
+    testcase_object.client.force_login(user)  # Log in with the intended user
 
     logger.info(all_params)
+    current_user_id = testcase_object.client.session.get('_auth_user_id')
+    logger.debug(f"User in session before test request: {current_user_id}")
 
     if method == 'post':
         response = testcase_object.client.post(url, data=data)

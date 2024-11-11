@@ -22,6 +22,7 @@ class ProductViewPermissionTest(TestCase):
     302 - redirect
     403 - couldn't access (doesn't have permission required)
     404 - couldn't access (has permission, but resource is missing)
+    note: 404 won't show up, as it is caught and resent as 403
     """
     def setUp(self):
         # Set up permissions using assign_permissions script
@@ -104,8 +105,8 @@ class ProductViewPermissionTest(TestCase):
              'data': factory.build(dict, FACTORY_CLASS=ProductFactory)},
 
             # since product was successfully deleted by shift_manager_user,
-            # 404 is expected (has permission, but resource is missing)
-            {'user': self.staff_user, 'expected_status': 404, 'method': 'post',
+            # 403 is expected
+            {'user': self.staff_user, 'expected_status': 403, 'method': 'post',
              'data': factory.build(dict, FACTORY_CLASS=ProductFactory)},
         ]
 
@@ -222,7 +223,7 @@ class CategoryViewPermissionsTest(TestCase):
             {'user': self.stock_user, 'expected_status': 403, 'method': 'get'},
 
             {'user': self.staff_user, 'expected_status': 302, 'method': 'post'},
-            {'user': self.shift_manager_user, 'expected_status': 404, 'method': 'post'},
+            {'user': self.shift_manager_user, 'expected_status': 403, 'method': 'post'},
             {'user': self.customer_user, 'expected_status': 403, 'method': 'post'},
             {'user': self.stock_user, 'expected_status': 403, 'method': 'post'},
         ]

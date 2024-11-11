@@ -21,9 +21,8 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         try:
             self.full_clean()
-            #import ipdb; ipdb.set_trace()
-            #if not isinstance(self.is_paid, bool):
-            #    raise ValidationError("is_paid should be True or False")
+            if not self.pk:  # Check if it's a new instance
+                logger.debug(f'Creating Order: {self}')
             super().save(*args, **kwargs)
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
@@ -48,6 +47,8 @@ class OrderItem(models.Model):
     def save(self, *args, **kwargs):
         try:
             self.full_clean()
+            if not self.pk:  # Check if it's a new instance
+                logger.debug(f'Creating OrderItem: {self}')
             super().save(*args, **kwargs)
         except Exception as e:
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
