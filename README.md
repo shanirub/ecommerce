@@ -59,6 +59,7 @@ To set up the project locally, follow these steps:
    DB_PORT=your_db_port
    DATABASE_URL=your_database_url
    ```
+   (See `GUIDE_POSTGRE.md` for step by step instructions)
 
 5. **Run Migrations and Start the Development Server**
    Run the following commands to apply migrations and start the server:
