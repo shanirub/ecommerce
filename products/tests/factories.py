@@ -49,4 +49,9 @@ class ProductFactory(factory.django.DjangoModelFactory):
     description = factory.Faker('word')
     price = 100.0
     stock = 10
-    category = factory.SubFactory(CategoryFactory)
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        if 'category' not in kwargs:
+            kwargs['category'] = factory.SubFactory(CategoryFactory)
+        return kwargs

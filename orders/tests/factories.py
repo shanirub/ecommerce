@@ -35,15 +35,20 @@ class OrderItemFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = OrderItem
 
-    product = factory.SubFactory(ProductFactory)
-    quantity = factory.Faker('random_int', min=1, max=10)
-    price = factory.Faker('pydecimal', left_digits=5, right_digits=2, positive=True)
+    # price = factory.Faker('pydecimal', left_digits=5, right_digits=2, positive=True)
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
         # If 'order' is not provided, create a new one with OrderFactory
         if 'order' not in kwargs:
             kwargs['order'] = OrderFactory()
+        if 'quantity' not in kwargs:
+            kwargs['quantity'] = factory.Faker('random_int', min=1, max=10)
+        if 'product' not in kwargs:
+            kwargs['product'] = factory.SubFactory(ProductFactory)
+
+        product_price = kwargs['product'].price
+        kwargs['price'] = product_price * kwargs['quantity']
         return kwargs
 
     @classmethod

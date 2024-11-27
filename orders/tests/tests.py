@@ -149,11 +149,7 @@ class OrderIntegrationTests(TestCase):
             username='shani',
             email='shani@example.com',
             password='abc12345')
-        # self.user2 = User.objects.create_user(
-        #     username='nirit',
-        #     email='nirit@example.com',
-        #     password='aabb1234'
-        # )
+
         self.order = Order.objects.create_order(user=self.user)
         self.category = Category.objects.create_category('Stuff', 'Stuff things')
 
@@ -178,8 +174,9 @@ class OrderIntegrationTests(TestCase):
                         and self.order_item2 in order_items
                         and self.order_item3 in order_items)
 
-    def test_delete_order_and_check_items_deleted(self):
+        # TODO: add check to total price?
 
+    def test_delete_order_and_check_items_deleted(self):
         self.assertIsNotNone(self.order_item)
         self.assertIsNotNone(self.order_item2)
         self.assertIsNotNone(self.order_item3)
@@ -188,6 +185,11 @@ class OrderIntegrationTests(TestCase):
         result = Order.objects.delete_order(self.order.id)
         self.assertIsNotNone(result)
         self.assertEqual(result, (1, {'orders.Order': 1}))
+        # TODO: add check to total price?
+
+    # TODO: add tests?
+    def test_update_order_item_quantity_and_check_total_price(self):
+        pass
 
     def test_combine_two_order_items_of_the_same_product(self):
         # create new order_item with quantity 2

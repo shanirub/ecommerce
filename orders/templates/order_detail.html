@@ -13,6 +13,7 @@
         <h1>Order #{{ order.id }}</h1>
         <p><strong>Date:</strong> {{ order.created_at }}</p>
         <p><strong>Paid:</strong> {{ order.is_paid|yesno:"Yes,No" }}</p>
+        <p><strong>Total Price:</strong> {{ total_price }}</p>
 
         <h2>Items</h2>
         <ul>

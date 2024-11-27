@@ -1,6 +1,8 @@
 from typing import Union, Optional
 
 from django.db import models, transaction
+
+# from orders.models import OrderItem
 from products.managers import ProductManager
 from django.core.exceptions import ValidationError
 from products.models import Product
@@ -95,6 +97,45 @@ class OrderManager(models.Manager):
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
             return None
 
+    def get_items_for_order(self, order_id):
+        # TODO: refresh from db?
+        try:
+            order = self.get_order(order_id)
+            order_items = order.items.all()
+            return order_items
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            return None
+
+    def get_total_price(self, order_id):
+        """
+        calculate and return the total price of an order
+        """
+        # TODO: refresh from db?
+        try:
+            total_price = 0
+            logger.debug(f"Calculating total price for order {order_id}.")
+            order_items = self.get_items_for_order(order_id)
+            for item in order_items:
+                logger.debug(f"--> adding item #{item.id} ({item.product.name}):\n "
+                             f"-->item price calculated as: {item.quantity} units * product price {item.product.price}\n"
+                             f"-->item price to be added: {item.price}")
+                total_price += item.price
+            logger.debug(f"...done. total price for order {order_id} is {total_price}")
+            return total_price
+        except Exception as e:
+            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
+            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
+            return None
+
+    # todo: test to check implementation
+    # def with_total_prices(self):
+    #     from django.db.models import Sum, F
+    #     return self.get_queryset().annotate(
+    #         total_price=Sum(F('items__price') * F('items__quantity'))
+    #     )
+
 
 class OrderItemManager(models.Manager):
     def create_order_item(self, order: 'Order', product: Union[Product, str], quantity: int)\
@@ -151,20 +192,16 @@ class OrderItemManager(models.Manager):
                         updated_product = ProductManager.update_product(
                             self, order_item.product, stock=updated_stock)
                         if not updated_product:
-                            raise ValidationError(f"Failed to update order item with this attributes: "
-                                                  f"order_item= {order_item}, key= {key}, value= {value}")
+                            raise ValidationError(
+                                f"Failed to update order item with this attributes: "
+                                f"order_item= {order_item}, key= {key}, value= {value}"
+                            )
                         updated_product.save()
-                        logger.debug(f"updated product {order_item.product} with new stock: {updated_stock}")
-                        new_price = new_quantity * order_item.product.price
-                        setattr(order_item, 'price', new_price)
-                        logger.debug(f"new price for order_item {order_item_id} is {new_price}")
                     setattr(order_item, key, value)
-                    logger.debug(f"updated {key}:{value} in {order_item}")
-                order_item.save()
-                logger.debug(f"order_item saved successfully {order_item}")
+                order_item.save()  # Automatically calculates price
                 return order_item
         except self.model.DoesNotExist:
-            logger.error(f"no order_item found for id {order_item_id}")
+            logger.error(f"No order_item found for id {order_item_id}")
             return None
         except ValidationError as e:
             logger.error(f"An error occurred: {str(e)}", exc_info=True)
@@ -213,11 +250,6 @@ class OrderItemManager(models.Manager):
             log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
             logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
             return None
-
-
-
-
-    # TODO !!! get model object. self refers to Manager!!!
 
     def get_owner_user(self, order_item_id):
         """

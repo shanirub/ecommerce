@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 import logging
 from django.db.models import QuerySet
+from django.db.models.expressions import result
 from django.http import HttpResponseForbidden, Http404
 from django.template.context_processors import request
 from django.views import View
@@ -39,7 +40,8 @@ class OwnershipRequiredMixin:
                     # special case, use helper method in manager
                     logger.debug(f"trying to fetch owner using get_owner_user() in model {self.model}"
                                  f"with pk= {kwargs.get('pk')}")
-                    return self.model.objects.get_owner_user(kwargs.get('pk'))
+                    result = self.model.objects.get_owner_user(kwargs.get('pk'))
+                    return result
 
                 # default - return user field
                 logger.debug(f"trying to fetch owner using default get_object().user")
@@ -52,6 +54,7 @@ class OwnershipRequiredMixin:
             return None
 
     def dispatch(self, request, *args, **kwargs):
+        logger.debug(f"Checking ownership for request...")
         if self.is_in_enforce_group(request):
             try:
                 request_user = request.user
@@ -67,6 +70,7 @@ class OwnershipRequiredMixin:
                 logger.log(log_level, f"Unexpected error in ownership check: {str(e)}", exc_info=True)
                 raise Http404("Ownership validation failed.")
 
+        logger.debug(f"... ownership check finished without errors!")
         return super().dispatch(request, *args, **kwargs)
 
 

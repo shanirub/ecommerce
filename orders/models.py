@@ -40,21 +40,17 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, editable=False)  # Make price non-editable
 
     objects = OrderItemManager()
 
-    def save(self, *args, **kwargs):
-        try:
-            self.full_clean()
-            if not self.pk:  # Check if it's a new instance
-                logger.debug(f'Creating OrderItem: {self}')
-            super().save(*args, **kwargs)
-        except Exception as e:
-            log_level = EXCEPTION_LOG_LEVELS.get(type(e), logging.ERROR)
-            logger.log(log_level, f"An error occurred: {str(e)}", exc_info=True)
-            raise
+    def calculate_price(self):
+        if not self.product or not self.quantity:
+            raise ValueError("Cannot calculate price without a product or quantity of items.")
+        return self.quantity * self.product.price
 
-    def __str__(self):
-        return f'{self.quantity} of {self.product.name}'
+    def save(self, *args, **kwargs):
+        # Always calculate price before saving
+        self.price = self.calculate_price()
+        super().save(*args, **kwargs)
 
