@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 
 from ecommerce.management.commands.assign_permissions import logger
 from products.models import Product
+from .forms import OrderItemForm
 from .models import Order, OrderItem
 from core.mixins import GroupRequiredMixin, OwnershipRequiredMixin
 from ecommerce.utils import validate_raw_bool_value
@@ -124,7 +125,8 @@ class OrderItemCreateView(OwnershipRequiredMixin, GroupRequiredMixin, CreateView
 
 class OrderItemUpdateView(GroupRequiredMixin, OwnershipRequiredMixin, UpdateView):
     model = OrderItem
-    fields = ['quantity', 'price']
+    # fields = ['quantity', 'price']
+    form_class = OrderItemForm
     template_name = 'update_order_item.html'
     allowed_groups = ['customers', 'shift_manager']
 

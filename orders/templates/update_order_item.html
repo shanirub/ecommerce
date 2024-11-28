@@ -8,7 +8,7 @@
     <input type="number" name="quantity" id="id_quantity" required min="1" value="{{ object.quantity }}">
 
     <label for="id_price">Price:</label>
-    <input type="number" name="price" id="id_price" required step="0.01" min="0" value="{{ object.price }}">
+    <input type="number" name="price" id="id_price" required step="0.01" min="0" value="{{ object.price }}" readonly>
 {% endblock %}
 
 {% block submit_button %}Update{% endblock %}
