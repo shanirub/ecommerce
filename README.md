@@ -15,7 +15,7 @@ For a detailed list of the technologies and packages used in this project, pleas
 
 
 ## Table of Contents
-- [Installation](#installation)
+- [Local Deployment](#local-deployment)
 - [Deployment](#deployment)
 - [Usage](#usage)
 - [Features](#features)
@@ -27,7 +27,7 @@ For a detailed list of the technologies and packages used in this project, pleas
 - [Acknowledgments](#acknowledgments)
 - [Contact Information](#contact-information)
 
-## Installation
+## Local Deployment
 To set up the project locally, follow these steps:
 
 1. **Clone the Repository**
@@ -36,35 +36,83 @@ To set up the project locally, follow these steps:
    cd KoopaKart
    ```
 
-2. **Install Poetry**
+2. **Create the `local_settings.env` File**
+   Before installing dependencies, create a `local_settings.env` file in the root directory of the project. This file will contain environment variables needed for local deployment, such as your database connection settings.
+
+   Example content for `local_settings.env`:
+
+   ```env
+   # Local PostgreSQL configuration
+   DB_NAME=ecommerce_db
+   DB_USER=postgres
+   DB_PASSWORD=a_secret_password
+   DB_HOST=localhost
+   DB_PORT=5432
+
+   ALLOWED_HOSTS=127.0.0.1,localhost
+   DEBUG=True
+
+   POSTGRES_DB=${DB_NAME}
+   POSTGRES_USER=${DB_USER}
+   POSTGRES_PASSWORD=${DB_PASSWORD}
+
+   # Optional: set DATABASE_URL for local use if needed
+   DATABASE_URL=postgres://postgres:a_secret_password@localhost:5432/ecommerce_db
+
+   DJANGO_SECRET_KEY='XXX'
+   ```
+
+   - **Explanation**:
+     - `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`: These variables store the PostgreSQL database connection settings.
+     - `ALLOWED_HOSTS`: Ensures the Django app only accepts requests from specified hosts (localhost in this case).
+     - `DEBUG`: Set to `True` to enable debugging during development.
+     - `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`: These are passed to Docker to set up PostgreSQL.
+     - `DATABASE_URL`: This is an optional variable that specifies the database connection string.
+     - `DJANGO_SECRET_KEY`: A secret key used by Django for cryptographic operations. Make sure this is kept secure. A short guide follows.
+
+   Save the file as `local_settings.env` in the root directory of the project.
+
+   #### Generating a Secret Key
+
+   The `DJANGO_SECRET_KEY` in `local_settings.env` is a crucial setting for Django's security. If you don't have one, you can generate a secret key using the following command in Python:
+
+   ```bash
+   python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+   ```
+
+   This will generate a secure random string that you can use for your `DJANGO_SECRET_KEY` in `local_settings.env`.
+
+   Alternatively, you can use services or online tools to generate a secure key, but ensure it remains secret and is not committed to version control.
+
+
+3. **Install Poetry**
    If you haven't installed Poetry yet, you can do so by running:
    ```bash
    pip install --upgrade pip
    pip install poetry
    ```
 
-3. **Install Dependencies**
+4. **Install Dependencies**
    Use Poetry to install the project's dependencies:
    ```bash
    poetry install
    ```
 
-4. **Set Up Your Environment Variables**
-   Create a `.env` file in the root directory of the project and add your environment variables based on the following example:
+5. **Run the Docker Container**
+   Start the PostgreSQL database container using the `make run` command. This will set up and start your database:
+   ```bash
+   make run
    ```
-   DB_NAME=your_db_name
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_HOST=your_db_host
-   DB_PORT=your_db_port
-   DATABASE_URL=your_database_url
-   ```
-   (See `GUIDE_POSTGRE.md` for step by step instructions)
 
-5. **Run Migrations and Start the Development Server**
-   Run the following commands to apply migrations and start the server:
+6. **Activate the Poetry Shell**
+   Once the dependencies are installed, activate the Poetry virtual environment:
    ```bash
    poetry shell
+   ```
+
+7. **Run Migrations and Start the Development Server**
+   Apply the migrations and start the server with the following commands:
+   ```bash
    python manage.py migrate
    python manage.py runserver
    ```
@@ -81,7 +129,8 @@ You can access the live version of KoopaKart at the following URL:
 Feel free to explore the project and experience the functionality firsthand. Screenshots and additional details will be added soon!
 
 ## Usage
-Coming soon
+
+Once the application is running, you can access the development server at [http://127.0.0.1:8000/](http://127.0.0.1:8000/). The server will be running in debug mode, so you can test your changes and see updates immediately. The PostgreSQL database will be available via the Docker container, and any changes to the database schema can be handled through Django migrations.
 
 ## Features
 
@@ -117,12 +166,22 @@ Key packages include:
 Coming soon
 
 ## Testing
-To run the tests locally, first ensure you have installed the necessary dependencies and start a Poetry shell. Then, use the following command:
 
+To run the project's tests, follow these steps:
+
+1. **Activate the Poetry Shell**
+   If not already activated, run:
    ```bash
    poetry shell
+   ```
+
+2. **Run Tests**
+   Use Django’s test framework to run all tests:
+   ```bash
    python manage.py test
    ```
+
+This will run all the tests in your project, including tests for models, views, and other Django components. You can also add specific test apps or test cases as needed.
 
 ## Contributing
 I welcome suggestions and ideas for improvement. However, please note that all coding contributions are currently handled by me. If you have any feedback or feature requests, feel free to reach out!
