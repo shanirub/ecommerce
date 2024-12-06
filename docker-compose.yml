@@ -1,0 +1,14 @@
+services:
+  db:
+    build: .
+    container_name: ecommerce_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - local_settings.env
+
+volumes:
+  postgres_data:  # This declares the volume
+

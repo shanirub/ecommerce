@@ -1,3 +1,6 @@
+(no longer relevant. see README for local deployment guide)
+
+
 ## PostgreSQL Installation and Setup for Ecommerce Project
 
 The `ecommerce` project uses PostgreSQL as its database. To set it up correctly, ensure PostgreSQL is installed and configured according to the following instructions. These steps are intended for Fedora Linux but should work for other distributions with minimal adjustments.
